@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostSync - AI-Powered Social Media Automation</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Landing Page -->
+    <div id="landing-page" class="page active">
+        <!-- Hero Section -->
+        <header class="hero">
+            <nav class="navbar">
+                <div class="nav-container">
+                    <div class="nav-brand">
+                        <div class="logo">
+                            <div class="logo-icon">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <span class="logo-text">PostSync</span>
+                        </div>
+                    </div>
+                    <div class="nav-menu">
+                        <a href="#features" class="nav-link">Features</a>
+                        <a href="#pricing" class="nav-link">Pricing</a>
+                        <a href="#about" class="nav-link">About</a>
+                        <button class="btn btn-outline" onclick="showLogin()">Sign In</button>
+                        <button class="btn btn-primary" onclick="showSignup()">Get Started</button>
+                    </div>
+                    <div class="mobile-menu-toggle">
+                        <i class="fas fa-bars"></i>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="hero-content">
+                <div class="container">
+                    <div class="hero-text">
+                        <h1 class="hero-title">
+                            AI-Powered Social Media
+                            <span class="gradient-text">Automation</span>
+                            for Professionals
+                        </h1>
+                        <p class="hero-subtitle">
+                            Transform your content discovery into engaging posts across LinkedIn, Twitter, and Reddit. 
+                            Let AI handle the heavy lifting while you focus on building your professional brand.
+                        </p>
+                        <div class="hero-buttons">
+                            <button class="btn btn-primary btn-large" onclick="showSignup()">
+                                <i class="fas fa-rocket"></i>
+                                Start Automating
+                            </button>
+                            <button class="btn btn-secondary btn-large" onclick="showDemo()">
+                                <i class="fas fa-play"></i>
+                                Watch Demo
+                            </button>
+                        </div>
+                        <div class="hero-stats">
+                            <div class="stat">
+                                <span class="stat-number">10k+</span>
+                                <span class="stat-label">Posts Generated</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-number">99.8%</span>
+                                <span class="stat-label">Accuracy Rate</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-number">5x</span>
+                                <span class="stat-label">Engagement Boost</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hero-visual">
+                        <div class="dashboard-preview">
+                            <div class="preview-window">
+                                <div class="window-header">
+                                    <div class="window-controls">
+                                        <span class="control red"></span>
+                                        <span class="control yellow"></span>
+                                        <span class="control green"></span>
+                                    </div>
+                                    <span class="window-title">PostSync Dashboard</span>
+                                </div>
+                                <div class="window-content">
+                                    <div class="preview-content">
+                                        <div class="content-card">
+                                            <div class="card-header">
+                                                <i class="fab fa-linkedin"></i>
+                                                <span>LinkedIn Post</span>
+                                                <span class="ai-badge">AI Generated</span>
+                                            </div>
+                                            <div class="card-content">
+                                                <p>🚀 Just discovered an incredible breakthrough in AI research...</p>
+                                                <div class="metrics">
+                                                    <span class="metric">
+                                                        <i class="fas fa-chart-line"></i>
+                                                        95% Quality
+                                                    </span>
+                                                    <span class="metric">
+                                                        <i class="fas fa-check-circle"></i>
+                                                        Fact-checked
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="content-card">
+                                            <div class="card-header">
+                                                <i class="fab fa-twitter"></i>
+                                                <span>Twitter Thread</span>
+                                                <span class="ai-badge">AI Generated</span>
+                                            </div>
+                                            <div class="card-content">
+                                                <p>🧵 Thread: The future of startup funding (1/5)</p>
+                                                <div class="metrics">
+                                                    <span class="metric">
+                                                        <i class="fas fa-chart-line"></i>
+                                                        92% Quality
+                                                    </span>
+                                                    <span class="metric">
+                                                        <i class="fas fa-check-circle"></i>
+                                                        Ready to post
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="floating-elements">
+                            <div class="floating-icon icon-1">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <div class="floating-icon icon-2">
+                                <i class="fas fa-share-alt"></i>
+                            </div>
+                            <div class="floating-icon icon-3">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Features Section -->
+        <section id="features" class="features">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Powerful Features</h2>
+                    <p class="section-subtitle">Everything you need to automate your social media presence</p>
+                </div>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h3 class="feature-title">AI Content Generation</h3>
+                        <p class="feature-description">Advanced AI creates engaging, platform-optimized content from your source materials</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3 class="feature-title">Fact-Check Pipeline</h3>
+                        <p class="feature-description">5-layer validation ensures 99.8% accuracy with comprehensive fact-checking</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <h3 class="feature-title">Smart Scheduling</h3>
+                        <p class="feature-description">Optimal posting times across platforms to maximize engagement</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3 class="feature-title">Performance Analytics</h3>
+                        <p class="feature-description">Real-time insights and metrics to track your content's success</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-share-nodes"></i>
+                        </div>
+                        <h3 class="feature-title">Multi-Platform</h3>
+                        <p class="feature-description">LinkedIn, Twitter, Reddit, and more - all from one dashboard</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <h3 class="feature-title">Smart Automation</h3>
+                        <p class="feature-description">Set it and forget it - PostSync handles the rest automatically</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Login Page -->
+    <div id="login-page" class="page auth-page">
+        <div class="auth-container">
+            <div class="auth-visual">
+                <div class="visual-content">
+                    <h2>Welcome Back</h2>
+                    <p>Continue your AI-powered social media journey</p>
+                    <div class="visual-illustration">
+                        <div class="floating-cards">
+                            <div class="mini-card card-1">
+                                <i class="fab fa-linkedin"></i>
+                                <span>LinkedIn</span>
+                            </div>
+                            <div class="mini-card card-2">
+                                <i class="fab fa-twitter"></i>
+                                <span>Twitter</span>
+                            </div>
+                            <div class="mini-card card-3">
+                                <i class="fab fa-reddit"></i>
+                                <span>Reddit</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="auth-form">
+                <div class="form-header">
+                    <div class="logo">
+                        <div class="logo-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <span class="logo-text">PostSync</span>
+                    </div>
+                    <h1>Sign In</h1>
+                    <p>Enter your credentials to access your dashboard</p>
+                </div>
+                <form id="login-form" class="form">
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <div class="form-options">
+                        <label class="checkbox">
+                            <input type="checkbox" name="remember">
+                            <span class="checkmark"></span>
+                            Remember me
+                        </label>
+                        <a href="#" class="forgot-link">Forgot password?</a>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Sign In
+                    </button>
+                    <div class="form-footer">
+                        <p>Don't have an account? <a href="#" onclick="showSignup()">Sign up</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signup Page -->
+    <div id="signup-page" class="page auth-page">
+        <div class="auth-container">
+            <div class="auth-visual">
+                <div class="visual-content">
+                    <h2>Join PostSync</h2>
+                    <p>Start automating your social media presence with AI</p>
+                    <div class="features-preview">
+                        <div class="feature-preview">
+                            <i class="fas fa-check"></i>
+                            <span>AI-powered content generation</span>
+                        </div>
+                        <div class="feature-preview">
+                            <i class="fas fa-check"></i>
+                            <span>99.8% fact-check accuracy</span>
+                        </div>
+                        <div class="feature-preview">
+                            <i class="fas fa-check"></i>
+                            <span>Multi-platform scheduling</span>
+                        </div>
+                        <div class="feature-preview">
+                            <i class="fas fa-check"></i>
+                            <span>Real-time analytics</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="auth-form">
+                <div class="form-header">
+                    <div class="logo">
+                        <div class="logo-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <span class="logo-text">PostSync</span>
+                    </div>
+                    <h1>Create Account</h1>
+                    <p>Join thousands of professionals automating their social media</p>
+                </div>
+                <form id="signup-form" class="form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName">First Name</label>
+                            <input type="text" id="firstName" name="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Last Name</label>
+                            <input type="text" id="lastName" name="lastName" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupEmail">Email Address</label>
+                        <input type="email" id="signupEmail" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupPassword">Password</label>
+                        <input type="password" id="signupPassword" name="password" required>
+                        <div class="password-strength">
+                            <div class="strength-meter">
+                                <div class="strength-bar"></div>
+                            </div>
+                            <span class="strength-text">Password strength</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox">
+                            <input type="checkbox" name="terms" required>
+                            <span class="checkmark"></span>
+                            I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">
+                        <i class="fas fa-rocket"></i>
+                        Create Account
+                    </button>
+                    <div class="form-footer">
+                        <p>Already have an account? <a href="#" onclick="showLogin()">Sign in</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

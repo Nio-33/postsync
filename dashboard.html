@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - PostSync</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="dashboard-body">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <span class="logo-text">PostSync</span>
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="#dashboard" class="nav-link active" data-page="dashboard">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#content-review" class="nav-link" data-page="content-review">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Content Review</span>
+                        <span class="nav-badge">12</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#analytics" class="nav-link" data-page="analytics">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Analytics</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#schedule" class="nav-link" data-page="schedule">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Schedule</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#settings" class="nav-link" data-page="settings">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-info">
+                    <span class="user-name">John Doe</span>
+                    <span class="user-plan">Pro Plan</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-left">
+                <button class="sidebar-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="page-title">Dashboard</h1>
+            </div>
+            <div class="header-right">
+                <div class="header-actions">
+                    <button class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        Generate Content
+                    </button>
+                    <div class="notification-icon">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">3</span>
+                    </div>
+                    <div class="user-menu">
+                        <img src="https://via.placeholder.com/32" alt="User" class="user-avatar">
+                        <div class="user-dropdown">
+                            <a href="#profile">Profile</a>
+                            <a href="#billing">Billing</a>
+                            <a href="#" onclick="logout()">Sign Out</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div id="dashboard-content" class="content-area active">
+            <!-- Stats Overview -->
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 class="stat-number">127</h3>
+                        <p class="stat-label">Content Generated</p>
+                        <span class="stat-change positive">+12% this week</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 class="stat-number">98.5%</h3>
+                        <p class="stat-label">Accuracy Rate</p>
+                        <span class="stat-change positive">+0.3% this week</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-share-alt"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 class="stat-number">89</h3>
+                        <p class="stat-label">Posts Published</p>
+                        <span class="stat-change positive">+8% this week</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 class="stat-number">4.2K</h3>
+                        <p class="stat-label">Total Engagement</p>
+                        <span class="stat-change positive">+23% this week</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charts Section -->
+            <section class="charts-section">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3>Content Performance</h3>
+                        <div class="chart-controls">
+                            <select class="time-filter">
+                                <option value="7d">Last 7 days</option>
+                                <option value="30d">Last 30 days</option>
+                                <option value="90d">Last 90 days</option>
+                            </select>
+                        </div>
+                    </div>
+                    <canvas id="performanceChart"></canvas>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3>Platform Distribution</h3>
+                    </div>
+                    <canvas id="platformChart"></canvas>
+                </div>
+            </section>
+
+            <!-- Recent Activity -->
+            <section class="recent-activity">
+                <div class="activity-header">
+                    <h3>Recent Activity</h3>
+                    <a href="#" class="view-all">View All</a>
+                </div>
+                <div class="activity-list">
+                    <div class="activity-item">
+                        <div class="activity-icon linkedin">
+                            <i class="fab fa-linkedin"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h4>LinkedIn post published</h4>
+                            <p>"AI Research Breakthrough in Machine Learning" - 45 engagements</p>
+                            <span class="activity-time">2 hours ago</span>
+                        </div>
+                        <div class="activity-status success">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon twitter">
+                            <i class="fab fa-twitter"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h4>Twitter thread generated</h4>
+                            <p>"Startup Funding Trends 2024" - Ready for review</p>
+                            <span class="activity-time">4 hours ago</span>
+                        </div>
+                        <div class="activity-status pending">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon reddit">
+                            <i class="fab fa-reddit"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h4>Reddit post scheduled</h4>
+                            <p>"Tech Innovation Discussion" - Publishing at 2:00 PM</p>
+                            <span class="activity-time">6 hours ago</span>
+                        </div>
+                        <div class="activity-status scheduled">
+                            <i class="fas fa-calendar"></i>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Content Review Page -->
+        <div id="content-review-content" class="content-area">
+            <div class="content-header">
+                <h2>Content Review</h2>
+                <p>Review and approve AI-generated content before publishing</p>
+            </div>
+            
+            <!-- Quick Filters -->
+            <div class="quick-filters">
+                <button class="filter-btn active" data-filter="all">All Content</button>
+                <button class="filter-btn" data-filter="pending">Needs Review (12)</button>
+                <button class="filter-btn" data-filter="approved">Approved (8)</button>
+                <button class="filter-btn" data-filter="scheduled">Scheduled (5)</button>
+            </div>
+            
+            <!-- Content Items -->
+            <div class="content-items">
+                <div class="content-item" data-status="pending">
+                    <div class="content-preview">
+                        <div class="platform-badge linkedin">
+                            <i class="fab fa-linkedin"></i>
+                            LinkedIn
+                        </div>
+                        <h4>AI Research Breakthrough in Machine Learning</h4>
+                        <p>🚀 Just discovered an incredible breakthrough in AI research that's changing everything we know about machine learning algorithms...</p>
+                        <div class="content-metrics">
+                            <span class="metric">
+                                <i class="fas fa-check-circle"></i>
+                                95% Fact-check
+                            </span>
+                            <span class="metric">
+                                <i class="fas fa-chart-line"></i>
+                                92% Quality Score
+                            </span>
+                            <span class="metric">
+                                <i class="fas fa-clock"></i>
+                                2 hours ago
+                            </span>
+                        </div>
+                    </div>
+                    <div class="content-actions">
+                        <button class="btn btn-success">
+                            <i class="fas fa-check"></i>
+                            Approve
+                        </button>
+                        <button class="btn btn-error">
+                            <i class="fas fa-times"></i>
+                            Reject
+                        </button>
+                        <button class="btn btn-secondary">
+                            <i class="fas fa-edit"></i>
+                            Edit
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- More content items would go here -->
+            </div>
+        </div>
+
+        <!-- Analytics Page -->
+        <div id="analytics-content" class="content-area">
+            <div class="content-header">
+                <h2>Analytics</h2>
+                <p>Track your content performance and engagement metrics</p>
+            </div>
+            
+            <div class="analytics-grid">
+                <div class="analytics-card">
+                    <h3>Engagement Trends</h3>
+                    <canvas id="engagementChart"></canvas>
+                </div>
+                
+                <div class="analytics-card">
+                    <h3>Top Performing Content</h3>
+                    <div class="top-content-list">
+                        <div class="top-content-item">
+                            <span class="rank">1</span>
+                            <div class="content-info">
+                                <h4>AI Research Breakthrough</h4>
+                                <span class="platform">LinkedIn</span>
+                            </div>
+                            <span class="engagement">1.2K</span>
+                        </div>
+                        <!-- More items... -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Schedule Page -->
+        <div id="schedule-content" class="content-area">
+            <div class="content-header">
+                <h2>Content Schedule</h2>
+                <p>Manage your content publishing schedule</p>
+            </div>
+            
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <button class="calendar-nav" id="prevMonth">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <h3 id="currentMonth">January 2024</h3>
+                    <button class="calendar-nav" id="nextMonth">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="calendar-grid" id="calendarGrid">
+                    <!-- Calendar will be generated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Page -->
+        <div id="settings-content" class="content-area">
+            <div class="content-header">
+                <h2>Settings</h2>
+                <p>Manage your account preferences and configuration</p>
+            </div>
+            
+            <div class="settings-grid">
+                <div class="settings-section">
+                    <h3>Content Preferences</h3>
+                    <div class="setting-item">
+                        <label>Posting Frequency</label>
+                        <select>
+                            <option>Daily</option>
+                            <option>Every 2 days</option>
+                            <option>Weekly</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label>Quality Threshold</label>
+                        <input type="range" min="70" max="99" value="85">
+                        <span>85%</span>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h3>Connected Accounts</h3>
+                    <div class="connected-accounts">
+                        <div class="account-item">
+                            <i class="fab fa-linkedin"></i>
+                            <span>LinkedIn</span>
+                            <span class="status connected">Connected</span>
+                        </div>
+                        <div class="account-item">
+                            <i class="fab fa-twitter"></i>
+                            <span>Twitter</span>
+                            <span class="status disconnected">Not Connected</span>
+                        </div>
+                        <div class="account-item">
+                            <i class="fab fa-reddit"></i>
+                            <span>Reddit</span>
+                            <span class="status connected">Connected</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
