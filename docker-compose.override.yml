@@ -1,0 +1,37 @@
+# Docker Compose Override for Local Development
+# This file is automatically merged with docker-compose.yml
+# Use this for development-specific overrides
+
+version: '3.8'
+
+services:
+  postsync-api:
+    # Override for development
+    build:
+      target: production  # Still use production for consistency
+    environment:
+      - ENVIRONMENT=development
+      - DEBUG=true
+      - LOG_LEVEL=DEBUG
+      - RELOAD=true
+    volumes:
+      # Mount source code for development (optional)
+      - ./src:/app/src:ro
+      - ./logs:/app/logs
+      - ./temp:/app/temp
+    command: ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    
+  # Development database (if using PostgreSQL instead of Firestore)
+  postgres:
+    environment:
+      - POSTGRES_DB=postsync_dev
+      - POSTGRES_USER=postsync_dev
+      - POSTGRES_PASSWORD=dev_password_123
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+      # Mount init scripts for development
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+
+volumes:
+  postgres_dev_data:
+    driver: local
