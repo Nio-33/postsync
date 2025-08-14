@@ -55,7 +55,7 @@ PostSync is built on Google Cloud Platform with a microservices architecture:
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/postsync/postsync.git
+   git clone https://github.com/Nio-33/postsync.git
    cd postsync
    ```
 
@@ -84,17 +84,17 @@ PostSync is built on Google Cloud Platform with a microservices architecture:
 
 6. **Run the development server**
    ```bash
-   uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
+   PYTHONPATH=/Users/nio/postsync uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
    ```
 
 7. **Serve the frontend (in another terminal)**
    ```bash
    cd frontend
-   python -m http.server 8080
+   python -m http.server 3000
    ```
 
 8. **Access the application**
-   - Frontend: http://localhost:8080 (Landing page and dashboard)
+   - Frontend: http://localhost:3000 (Landing page and dashboard)
    - API documentation: http://localhost:8000/docs (Swagger UI)
    - API documentation: http://localhost:8000/redoc (ReDoc)
 
@@ -309,7 +309,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🆘 Support
 
 - **Documentation**: [docs.postsync.com](https://docs.postsync.com)
-- **Issues**: [GitHub Issues](https://github.com/postsync/postsync/issues)
+- **Issues**: [GitHub Issues](https://github.com/Nio-33/postsync/issues)
 - **Email**: support@postsync.com
 - **Discord**: [PostSync Community](https://discord.gg/postsync)
 
