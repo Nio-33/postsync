@@ -14,8 +14,9 @@ import structlog
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
-from src.api import analytics, auth, content, users
+from src.api import analytics, auth, content, publishing, users
 from src.config.settings import get_settings
 from src.utils.logger import setup_logging
 from src.utils.monitoring import performance_monitor
@@ -85,7 +86,11 @@ def create_application() -> FastAPI:
     app.include_router(auth.router, prefix="/api/v1/auth", tags=["authentication"])
     app.include_router(users.router, prefix="/api/v1/users", tags=["users"])
     app.include_router(content.router, prefix="/api/v1/content", tags=["content"])
+    app.include_router(publishing.router, prefix="/api/v1/publishing", tags=["publishing"])
     app.include_router(analytics.router, prefix="/api/v1/analytics", tags=["analytics"])
+    
+    # Mount static files for frontend
+    app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")
     
     return app
 
