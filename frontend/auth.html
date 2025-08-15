@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostSync - Authentication</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .wrapper {
+            position: relative;
+            width: 750px;
+            height: 450px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .form-box {
+            position: absolute;
+            top: 0;
+            width: 50%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 40px;
+            transition: all 0.6s ease-in-out;
+        }
+
+        .form-box.login {
+            left: 0;
+        }
+
+        .form-box.register {
+            right: 0;
+            opacity: 0;
+        }
+
+        .wrapper.active .form-box.login {
+            left: -50%;
+            opacity: 0;
+        }
+
+        .wrapper.active .form-box.register {
+            right: 0;
+            opacity: 1;
+        }
+
+        .info-text {
+            position: absolute;
+            top: 0;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px;
+            transition: all 0.6s ease-in-out;
+        }
+
+        .info-text.login {
+            right: 0;
+        }
+
+        .info-text.register {
+            left: 0;
+            opacity: 0;
+        }
+
+        .wrapper.active .info-text.login {
+            right: -50%;
+            opacity: 0;
+        }
+
+        .wrapper.active .info-text.register {
+            left: 0;
+            opacity: 1;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            cursor: pointer;
+        }
+
+        .logo i {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+
+        .logo span {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .title {
+            font-size: 32px;
+            font-weight: 600;
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .info-text .title {
+            color: white;
+            font-size: 36px;
+            margin-bottom: 15px;
+        }
+
+        .info-text p {
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .input-box {
+            position: relative;
+            width: 100%;
+            height: 50px;
+            margin: 25px 0;
+        }
+
+        .input-box input {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: 2px solid #e4e4e4;
+            border-radius: 10px;
+            padding: 0 20px 0 45px;
+            font-size: 16px;
+            color: #333;
+            font-weight: 500;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .input-box input:focus,
+        .input-box input:valid {
+            border-color: #667eea;
+        }
+
+        .input-box input:focus ~ label,
+        .input-box input:valid ~ label {
+            top: -10px;
+            left: 20px;
+            font-size: 12px;
+            color: #667eea;
+            background: white;
+            padding: 0 5px;
+        }
+
+        .input-box label {
+            position: absolute;
+            top: 50%;
+            left: 45px;
+            transform: translateY(-50%);
+            font-size: 16px;
+            color: #999;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+
+        .input-box i {
+            position: absolute;
+            top: 50%;
+            left: 20px;
+            transform: translateY(-50%);
+            font-size: 20px;
+            color: #999;
+            transition: all 0.3s ease;
+        }
+
+        .input-box input:focus ~ i,
+        .input-box input:valid ~ i {
+            color: #667eea;
+        }
+
+        .remember-forgot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 25px 0 35px;
+            font-size: 14px;
+        }
+
+        .remember-forgot label {
+            color: #333;
+            cursor: pointer;
+        }
+
+        .remember-forgot label input {
+            margin-right: 8px;
+        }
+
+        .remember-forgot a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .remember-forgot a:hover {
+            text-decoration: underline;
+        }
+
+        .btn {
+            width: 100%;
+            height: 45px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .info-text .btn {
+            background: transparent;
+            border: 2px solid white;
+            color: white;
+        }
+
+        .info-text .btn:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        .animation {
+            animation: fadeInUp 0.8s ease forwards;
+            animation-delay: calc(0.1s * var(--i));
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .wrapper.active .form-box.register .animation {
+            animation-delay: calc(0.1s * var(--j));
+        }
+
+        @media (max-width: 768px) {
+            .wrapper {
+                width: 100%;
+                max-width: 400px;
+                height: auto;
+                flex-direction: column;
+            }
+            
+            .form-box,
+            .info-text {
+                position: relative;
+                width: 100%;
+                height: auto;
+                padding: 30px;
+            }
+            
+            .info-text {
+                order: -1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper" id="wrapper">
+        <!-- Login Form -->
+        <div class="form-box login">
+            <div class="logo" onclick="window.location.href='index.html'">
+                <i class="bx bx-bot"></i>
+                <span>PostSync</span>
+            </div>
+            
+            <h2 class="title animation" style="--i: 0;">Sign In</h2>
+            
+            <form id="login-form">
+                <div class="input-box animation" style="--i: 1;">
+                    <input type="email" id="email" name="email" required>
+                    <label>Email</label>
+                    <i class="bx bxs-envelope"></i>
+                </div>
+                
+                <div class="input-box animation" style="--i: 2;">
+                    <input type="password" id="password" name="password" required>
+                    <label>Password</label>
+                    <i class="bx bxs-lock-alt"></i>
+                </div>
+                
+                <div class="remember-forgot animation" style="--i: 3;">
+                    <label>
+                        <input type="checkbox" name="remember" id="remember">
+                        Remember me
+                    </label>
+                    <a href="#">Forgot Your Password?</a>
+                </div>
+                
+                <button type="submit" class="btn animation" style="--i: 4;">Sign In</button>
+            </form>
+        </div>
+
+        <!-- Register Form -->
+        <div class="form-box register">
+            <div class="logo" onclick="window.location.href='index.html'">
+                <i class="bx bx-bot"></i>
+                <span>PostSync</span>
+            </div>
+            
+            <h2 class="title animation" style="--i: 17; --j: 0;">Sign Up</h2>
+            
+            <form id="signup-form">
+                <div class="input-box animation" style="--i: 18; --j: 1;">
+                    <input type="text" id="firstName" name="firstName" required>
+                    <label>Full Name</label>
+                    <i class="bx bxs-user"></i>
+                </div>
+                
+                <div class="input-box animation" style="--i: 19; --j: 2;">
+                    <input type="email" id="signupEmail" name="email" required>
+                    <label>Email</label>
+                    <i class="bx bxs-envelope"></i>
+                </div>
+                
+                <div class="input-box animation" style="--i: 20; --j: 3;">
+                    <input type="password" id="signupPassword" name="password" required>
+                    <label>Password</label>
+                    <i class="bx bxs-lock-alt"></i>
+                </div>
+                
+                <div class="input-box animation" style="--i: 21; --j: 4;">
+                    <input type="password" id="confirmPassword" name="confirmPassword" required>
+                    <label>Confirm Password</label>
+                    <i class="bx bxs-lock-alt"></i>
+                </div>
+                
+                <div class="remember-forgot animation" style="--i: 22; --j: 5;">
+                    <label>
+                        <input type="checkbox" name="terms" id="terms" required>
+                        I agree to the Terms of Service
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn animation" style="--i: 23; --j: 6;">Sign Up</button>
+            </form>
+        </div>
+
+        <!-- Login Info -->
+        <div class="info-text login">
+            <h2 class="title animation" style="--i: 0;">Hello, Friend!</h2>
+            <p class="animation" style="--i: 1;">Register with your personal details to use all of PostSync's AI automation features</p>
+            <button class="btn animation" style="--i: 2;" onclick="toggleForm()">Sign Up</button>
+        </div>
+
+        <!-- Register Info -->
+        <div class="info-text register">
+            <h2 class="title animation" style="--i: 17; --j: 0;">Welcome Back!</h2>
+            <p class="animation" style="--i: 18; --j: 1;">Enter your personal details to continue your AI-powered social media automation journey</p>
+            <button class="btn animation" style="--i: 19; --j: 2;" onclick="toggleForm()">Sign In</button>
+        </div>
+    </div>
+
+    <script>
+        function toggleForm() {
+            const wrapper = document.getElementById('wrapper');
+            wrapper.classList.toggle('active');
+        }
+
+        // Handle form submissions
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const email = formData.get('email');
+            const password = formData.get('password');
+            const remember = formData.get('remember');
+            
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = 'Signing In...';
+            submitBtn.disabled = true;
+
+            try {
+                const response = await fetch('http://localhost:8000/api/v1/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('postsync_access_token', data.access_token);
+                    localStorage.setItem('postsync_refresh_token', data.refresh_token);
+                    localStorage.setItem('postsync_user_id', data.user_id);
+                    
+                    if (remember) {
+                        localStorage.setItem('postsync_remember', 'true');
+                    }
+
+                    alert('Successfully signed in! Redirecting to dashboard...');
+                    
+                    setTimeout(() => {
+                        window.location.href = '/dashboard.html';
+                    }, 1000);
+                } else {
+                    throw new Error(data.detail || 'Login failed');
+                }
+            } catch (error) {
+                if (error.message.includes('fetch')) {
+                    alert('Unable to connect to server. Please make sure the backend is running.');
+                } else {
+                    alert(error.message || 'Invalid email or password. Please try again.');
+                }
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+
+        document.getElementById('signup-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const fullName = formData.get('firstName');
+            const email = formData.get('email');
+            const password = formData.get('password');
+            const confirmPassword = formData.get('confirmPassword');
+            const terms = formData.get('terms');
+            
+            const errors = [];
+            
+            if (!fullName) {
+                errors.push('Please enter your full name');
+            }
+            
+            if (!email || !isValidEmail(email)) {
+                errors.push('Please enter a valid email address');
+            }
+            
+            if (!password || password.length < 8) {
+                errors.push('Password must be at least 8 characters long');
+            }
+            
+            if (password !== confirmPassword) {
+                errors.push('Passwords do not match');
+            }
+            
+            if (!terms) {
+                errors.push('Please accept the terms of service');
+            }
+
+            if (errors.length > 0) {
+                alert(errors.join('\n'));
+                return;
+            }
+            
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = 'Creating Account...';
+            submitBtn.disabled = true;
+
+            try {
+                const response = await fetch('http://localhost:8000/api/v1/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password,
+                        full_name: fullName,
+                        job_title: '',
+                        company: ''
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('Account created successfully! You can now sign in.');
+                    
+                    setTimeout(() => {
+                        toggleForm();
+                        document.getElementById('email').value = email;
+                    }, 2000);
+                } else {
+                    throw new Error(data.detail || 'Registration failed');
+                }
+
+            } catch (error) {
+                if (error.message.includes('fetch')) {
+                    alert('Unable to connect to server. Please make sure the backend is running.');
+                } else {
+                    alert(error.message || 'Failed to create account. Please try again.');
+                }
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+    </script>
+</body>
+</html>
