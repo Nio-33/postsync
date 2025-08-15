@@ -87,15 +87,33 @@
                         <i class="fas fa-plus"></i>
                         Generate Content
                     </button>
-                    <div class="notification-icon">
+                    <div class="notification-icon" id="notificationIcon">
                         <i class="fas fa-bell"></i>
-                        <span class="notification-badge">3</span>
+                        <span class="notification-badge" id="notificationBadge">4</span>
+                        <div class="simple-notification-dropdown" id="simpleNotificationDropdown">
+                            <div class="notification-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Content Published</span>
+                            </div>
+                            <div class="notification-item">
+                                <i class="fas fa-robot"></i>
+                                <span>New Content Generated</span>
+                            </div>
+                            <div class="notification-item">
+                                <i class="fas fa-chart-line"></i>
+                                <span>Engagement Milestone</span>
+                            </div>
+                            <div class="notification-item">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <span>API Rate Limit</span>
+                            </div>
+                        </div>
                     </div>
                     <div class="user-menu">
                         <img src="https://via.placeholder.com/32" alt="User" class="user-avatar">
                         <div class="user-dropdown">
-                            <a href="#profile">Profile</a>
-                            <a href="#billing">Billing</a>
+                            <a href="#profile" data-page="profile">Profile</a>
+                            <a href="#billing" data-page="billing">Billing</a>
                             <a href="#" onclick="logout()">Sign Out</a>
                         </div>
                     </div>
@@ -384,6 +402,286 @@
                             <span>Reddit</span>
                             <span class="status connected">Connected</span>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Page -->
+        <div id="profile-content" class="content-area">
+            <div class="content-header">
+                <h2>Profile</h2>
+                <p>Manage your personal information and account preferences</p>
+            </div>
+            
+            <div class="profile-container">
+                <div class="profile-main">
+                    <!-- Profile Picture Section -->
+                    <div class="profile-section">
+                        <h3>Profile Picture</h3>
+                        <div class="profile-picture-section">
+                            <div class="current-avatar">
+                                <img src="https://via.placeholder.com/80" alt="Profile Picture" id="profilePicture">
+                            </div>
+                            <div class="avatar-actions">
+                                <button class="btn btn-secondary" onclick="changeProfilePicture()">
+                                    <i class="fas fa-camera"></i>
+                                    Change Picture
+                                </button>
+                                <button class="btn btn-outline" onclick="removeProfilePicture()">Remove</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Personal Information -->
+                    <div class="profile-section">
+                        <h3>Personal Information</h3>
+                        <form class="profile-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="firstName">First Name</label>
+                                    <input type="text" id="firstName" name="firstName" value="John" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="lastName">Last Name</label>
+                                    <input type="text" id="lastName" name="lastName" value="Doe" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email Address</label>
+                                <input type="email" id="email" name="email" value="john.doe@example.com" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Phone Number</label>
+                                <input type="tel" id="phone" name="phone" value="+1 (555) 123-4567">
+                            </div>
+                            <div class="form-group">
+                                <label for="timezone">Timezone</label>
+                                <select id="timezone" name="timezone">
+                                    <option value="PST">Pacific Standard Time (PST)</option>
+                                    <option value="MST">Mountain Standard Time (MST)</option>
+                                    <option value="CST">Central Standard Time (CST)</option>
+                                    <option value="EST" selected>Eastern Standard Time (EST)</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </form>
+                    </div>
+
+                    <!-- Password Change -->
+                    <div class="profile-section">
+                        <h3>Change Password</h3>
+                        <form class="password-form">
+                            <div class="form-group">
+                                <label for="currentPassword">Current Password</label>
+                                <input type="password" id="currentPassword" name="currentPassword" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="newPassword">New Password</label>
+                                <input type="password" id="newPassword" name="newPassword" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="confirmPassword">Confirm New Password</label>
+                                <input type="password" id="confirmPassword" name="confirmPassword" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Update Password</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="profile-sidebar">
+                    <!-- Account Stats -->
+                    <div class="stats-card">
+                        <h4>Account Overview</h4>
+                        <div class="account-stats">
+                            <div class="stat-item">
+                                <span class="stat-value">127</span>
+                                <span class="stat-label">Posts Created</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value">89</span>
+                                <span class="stat-label">Posts Published</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value">4.2K</span>
+                                <span class="stat-label">Total Engagement</span>
+                            </div>
+                        </div>
+                        <p class="member-since">Member since January 2024</p>
+                    </div>
+
+                    <!-- Notification Preferences -->
+                    <div class="notification-preferences">
+                        <h4>Notification Preferences</h4>
+                        <div class="preference-item">
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                            <div class="preference-info">
+                                <span>Email Notifications</span>
+                                <small>Receive email updates about your content</small>
+                            </div>
+                        </div>
+                        <div class="preference-item">
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                            <div class="preference-info">
+                                <span>Marketing Updates</span>
+                                <small>Get notified about new features and tips</small>
+                            </div>
+                        </div>
+                        <div class="preference-item">
+                            <label class="switch">
+                                <input type="checkbox">
+                                <span class="slider"></span>
+                            </label>
+                            <div class="preference-info">
+                                <span>Weekly Reports</span>
+                                <small>Receive weekly performance summaries</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Billing Page -->
+        <div id="billing-content" class="content-area">
+            <div class="content-header">
+                <h2>Billing</h2>
+                <p>Manage your subscription and billing information</p>
+            </div>
+            
+            <div class="billing-container">
+                <div class="billing-main">
+                    <!-- Current Plan -->
+                    <div class="billing-section">
+                        <h3>Current Plan</h3>
+                        <div class="current-plan-card">
+                            <div class="plan-info">
+                                <div class="plan-badge pro">PRO PLAN</div>
+                                <h4>Professional</h4>
+                                <p class="plan-price">$29<span>/month</span></p>
+                                <p class="plan-description">Perfect for growing businesses and content creators</p>
+                            </div>
+                            <div class="plan-actions">
+                                <button class="btn btn-outline">Change Plan</button>
+                                <button class="btn btn-error">Cancel Subscription</button>
+                            </div>
+                        </div>
+                        <div class="plan-features">
+                            <h5>Your Plan Includes:</h5>
+                            <ul>
+                                <li><i class="fas fa-check"></i> Unlimited content generation</li>
+                                <li><i class="fas fa-check"></i> All social platforms</li>
+                                <li><i class="fas fa-check"></i> Advanced analytics</li>
+                                <li><i class="fas fa-check"></i> Priority support</li>
+                                <li><i class="fas fa-check"></i> Custom scheduling</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Payment Method -->
+                    <div class="billing-section">
+                        <h3>Payment Method</h3>
+                        <div class="payment-method">
+                            <div class="payment-card">
+                                <div class="card-info">
+                                    <i class="fab fa-cc-visa"></i>
+                                    <div class="card-details">
+                                        <span class="card-number">**** **** **** 4532</span>
+                                        <span class="card-expiry">Expires 12/26</span>
+                                    </div>
+                                </div>
+                                <div class="card-actions">
+                                    <button class="btn btn-secondary">Update</button>
+                                    <button class="btn btn-outline">Remove</button>
+                                </div>
+                            </div>
+                            <button class="btn btn-secondary add-payment">
+                                <i class="fas fa-plus"></i>
+                                Add Payment Method
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Billing History -->
+                    <div class="billing-section">
+                        <h3>Billing History</h3>
+                        <div class="billing-history">
+                            <div class="history-item">
+                                <div class="invoice-info">
+                                    <span class="invoice-date">January 15, 2024</span>
+                                    <span class="invoice-description">Professional Plan - Monthly</span>
+                                </div>
+                                <div class="invoice-amount">$29.00</div>
+                                <div class="invoice-actions">
+                                    <span class="status paid">Paid</span>
+                                    <button class="btn btn-link">Download</button>
+                                </div>
+                            </div>
+                            <div class="history-item">
+                                <div class="invoice-info">
+                                    <span class="invoice-date">December 15, 2023</span>
+                                    <span class="invoice-description">Professional Plan - Monthly</span>
+                                </div>
+                                <div class="invoice-amount">$29.00</div>
+                                <div class="invoice-actions">
+                                    <span class="status paid">Paid</span>
+                                    <button class="btn btn-link">Download</button>
+                                </div>
+                            </div>
+                            <div class="history-item">
+                                <div class="invoice-info">
+                                    <span class="invoice-date">November 15, 2023</span>
+                                    <span class="invoice-description">Professional Plan - Monthly</span>
+                                </div>
+                                <div class="invoice-amount">$29.00</div>
+                                <div class="invoice-actions">
+                                    <span class="status paid">Paid</span>
+                                    <button class="btn btn-link">Download</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="billing-sidebar">
+                    <!-- Next Payment -->
+                    <div class="next-payment-card">
+                        <h4>Next Payment</h4>
+                        <div class="payment-info">
+                            <span class="next-date">February 15, 2024</span>
+                            <span class="next-amount">$29.00</span>
+                        </div>
+                        <p class="payment-method-text">Visa ending in 4532</p>
+                    </div>
+
+                    <!-- Usage Summary -->
+                    <div class="usage-summary">
+                        <h4>This Month's Usage</h4>
+                        <div class="usage-item">
+                            <span>Content Generated</span>
+                            <span class="usage-value">34 / Unlimited</span>
+                        </div>
+                        <div class="usage-item">
+                            <span>Posts Published</span>
+                            <span class="usage-value">28 / Unlimited</span>
+                        </div>
+                        <div class="usage-item">
+                            <span>API Calls</span>
+                            <span class="usage-value">1,247 / Unlimited</span>
+                        </div>
+                    </div>
+
+                    <!-- Billing Support -->
+                    <div class="billing-support">
+                        <h4>Need Help?</h4>
+                        <p>Contact our billing support team for any questions about your subscription or invoices.</p>
+                        <button class="btn btn-secondary">Contact Support</button>
                     </div>
                 </div>
             </div>

@@ -358,6 +358,39 @@
     padding: 1.5rem;
     border-radius: var(--border-radius);
     box-shadow: var(--shadow);
+    height: 400px;
+    position: relative;
+}
+
+.chart-container canvas {
+    max-height: 320px !important;
+    height: 320px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+/* Fix for Chart.js infinite height issue */
+#performanceChart,
+#platformChart,
+#engagementChart {
+    max-height: 320px !important;
+    height: 320px !important;
+    width: 100% !important;
+    position: relative !important;
+    display: block !important;
+}
+
+/* Force chart canvas dimensions */
+#performanceChart canvas,
+#platformChart canvas,
+#engagementChart canvas {
+    max-height: 320px !important;
+    height: 320px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
 }
 
 .chart-header {
@@ -645,6 +678,15 @@
     padding: 1.5rem;
     border-radius: var(--border-radius);
     box-shadow: var(--shadow);
+    height: 400px;
+    position: relative;
+}
+
+.analytics-card canvas {
+    max-height: 320px !important;
+    height: 320px !important;
+    width: 100% !important;
+    max-width: 100% !important;
 }
 
 .analytics-card h3 {
@@ -927,5 +969,652 @@
     .filter-btn {
         font-size: 0.75rem;
         padding: 0.375rem 0.75rem;
+    }
+}
+
+/* Simple Notification Dropdown */
+.simple-notification-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 250px;
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: none;
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.simple-notification-dropdown.show {
+    display: block;
+}
+
+.notification-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--gray-100);
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.notification-item:hover {
+    background: var(--gray-50);
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item i {
+    width: 16px;
+    margin-right: 0.75rem;
+    color: var(--primary-blue);
+}
+
+.notification-item span {
+    font-size: 0.875rem;
+    color: var(--gray-700);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Profile Page Styles */
+.profile-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+}
+
+.profile-main {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.profile-section {
+    background: white;
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+}
+
+.profile-section h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--gray-200);
+    padding-bottom: 0.75rem;
+}
+
+.profile-picture-section {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.current-avatar img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--gray-200);
+}
+
+.avatar-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.profile-form {
+    max-width: 600px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 500;
+    color: var(--gray-700);
+    margin-bottom: 0.5rem;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--gray-300);
+    border-radius: 6px;
+    font-size: 0.875rem;
+    transition: var(--transition);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.profile-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.stats-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+}
+
+.stats-card h4 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: 1rem;
+}
+
+.account-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    padding: 1rem;
+    background: var(--gray-50);
+    border-radius: 8px;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-blue);
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--gray-600);
+    margin-top: 0.25rem;
+}
+
+.member-since {
+    text-align: center;
+    color: var(--gray-500);
+    font-size: 0.875rem;
+    margin-top: 1rem;
+}
+
+.notification-preferences {
+    background: white;
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+}
+
+.notification-preferences h4 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: 1rem;
+}
+
+.preference-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: var(--gray-50);
+    border-radius: 8px;
+}
+
+.preference-info {
+    flex: 1;
+}
+
+.preference-info span {
+    display: block;
+    font-weight: 500;
+    color: var(--gray-900);
+    margin-bottom: 0.25rem;
+}
+
+.preference-info small {
+    color: var(--gray-600);
+    font-size: 0.8rem;
+}
+
+/* Toggle Switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--gray-300);
+    transition: 0.3s;
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background: var(--gradient-main);
+}
+
+input:checked + .slider:before {
+    transform: translateX(20px);
+}
+
+/* Billing Page Styles */
+.billing-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+}
+
+.billing-main {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.billing-section {
+    background: white;
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+}
+
+.billing-section h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--gray-200);
+    padding-bottom: 0.75rem;
+}
+
+.current-plan-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    color: white;
+    margin-bottom: 1.5rem;
+}
+
+.plan-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.plan-info h4 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.plan-price {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.plan-price span {
+    font-size: 1rem;
+    font-weight: 400;
+    opacity: 0.8;
+}
+
+.plan-description {
+    opacity: 0.9;
+    margin: 0;
+}
+
+.plan-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.plan-features ul {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+.plan-features li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--gray-700);
+    font-size: 0.875rem;
+}
+
+.plan-features i {
+    color: var(--success);
+    font-size: 0.875rem;
+}
+
+.payment-method {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.payment-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    background: var(--gray-50);
+}
+
+.card-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.card-info i {
+    font-size: 2rem;
+    color: var(--primary-blue);
+}
+
+.card-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.card-number {
+    font-weight: 500;
+    color: var(--gray-900);
+}
+
+.card-expiry {
+    font-size: 0.875rem;
+    color: var(--gray-600);
+}
+
+.card-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.add-payment {
+    align-self: flex-start;
+}
+
+.billing-history {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    background: var(--gray-50);
+}
+
+.invoice-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.invoice-date {
+    font-weight: 500;
+    color: var(--gray-900);
+}
+
+.invoice-description {
+    font-size: 0.875rem;
+    color: var(--gray-600);
+}
+
+.invoice-amount {
+    font-weight: 600;
+    color: var(--gray-900);
+    font-size: 1.125rem;
+}
+
+.invoice-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.status.paid {
+    background: var(--success);
+    color: white;
+}
+
+.btn-link {
+    background: none;
+    border: none;
+    color: var(--primary-blue);
+    font-size: 0.875rem;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.billing-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.next-payment-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+}
+
+.next-payment-card h4 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: 1rem;
+}
+
+.payment-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.next-date {
+    font-weight: 500;
+    color: var(--gray-900);
+}
+
+.next-amount {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-blue);
+}
+
+.payment-method-text {
+    color: var(--gray-600);
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+.usage-summary {
+    background: white;
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+}
+
+.usage-summary h4 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: 1rem;
+}
+
+.usage-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.usage-item:last-child {
+    border-bottom: none;
+}
+
+.usage-value {
+    font-weight: 500;
+    color: var(--primary-blue);
+}
+
+.billing-support {
+    background: white;
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+}
+
+.billing-support h4 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: 1rem;
+}
+
+.billing-support p {
+    color: var(--gray-600);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+}
+
+/* Button Styles */
+.btn-outline {
+    background: white;
+    border: 1px solid var(--gray-300);
+    color: var(--gray-700);
+}
+
+.btn-outline:hover {
+    background: var(--gray-50);
+    border-color: var(--gray-400);
+}
+
+/* Responsive Design for Profile and Billing Pages */
+@media (max-width: 1024px) {
+    .profile-container,
+    .billing-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .plan-features ul {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .profile-section,
+    .billing-section {
+        padding: 1.5rem;
+    }
+    
+    .profile-picture-section {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .current-plan-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .payment-card,
+    .history-item {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .invoice-actions {
+        justify-content: center;
     }
 }

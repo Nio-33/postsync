@@ -33,6 +33,17 @@ class DashboardApp {
             this.toggleUserDropdown();
         });
 
+        // User dropdown links
+        document.querySelectorAll('.user-dropdown a[data-page]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const page = link.dataset.page;
+                console.log('Navigating to page:', page);
+                this.showPage(page);
+                this.closeUserDropdown();
+            });
+        });
+
         // Filter buttons
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -77,10 +88,25 @@ class DashboardApp {
             }
         });
 
+        // Notification icon click
+        document.getElementById('notificationIcon')?.addEventListener('click', () => {
+            toggleSimpleNotifications();
+        });
+
         // Close dropdowns when clicking outside
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.user-menu')) {
                 this.closeUserDropdown();
+            }
+            
+            // Close notification dropdown if clicking outside
+            const notificationIcon = document.getElementById('notificationIcon');
+            const simpleDropdown = document.getElementById('simpleNotificationDropdown');
+            if (notificationIcon && simpleDropdown && 
+                !notificationIcon.contains(e.target) && 
+                !simpleDropdown.contains(e.target) &&
+                simpleDropdown.classList.contains('show')) {
+                closeAllDropdowns();
             }
         });
 
@@ -91,20 +117,37 @@ class DashboardApp {
     }
 
     showPage(pageId) {
-        // Update navigation
+        console.log('showPage called with pageId:', pageId);
+        
+        // Update navigation - only for sidebar nav links
         document.querySelectorAll('.nav-link').forEach(link => {
             link.classList.remove('active');
         });
-        document.querySelector(`[data-page="${pageId}"]`).classList.add('active');
+        
+        // Only set active if it's a sidebar page
+        const sidebarPage = document.querySelector(`.nav-link[data-page="${pageId}"]`);
+        if (sidebarPage) {
+            sidebarPage.classList.add('active');
+            console.log('Set sidebar page active:', pageId);
+        }
 
         // Update content areas
         document.querySelectorAll('.content-area').forEach(area => {
             area.classList.remove('active');
         });
-        document.getElementById(`${pageId}-content`).classList.add('active');
+        
+        const targetContent = document.getElementById(`${pageId}-content`);
+        if (targetContent) {
+            targetContent.classList.add('active');
+            console.log('Activated content area:', `${pageId}-content`);
+        } else {
+            console.error('Target content not found:', `${pageId}-content`);
+        }
 
         // Update page title
-        document.querySelector('.page-title').textContent = this.getPageTitle(pageId);
+        const pageTitle = this.getPageTitle(pageId);
+        document.querySelector('.page-title').textContent = pageTitle;
+        console.log('Updated page title to:', pageTitle);
 
         this.currentPage = pageId;
 
@@ -118,7 +161,9 @@ class DashboardApp {
             'content-review': 'Content Review',
             'analytics': 'Analytics',
             'schedule': 'Content Schedule',
-            'settings': 'Settings'
+            'settings': 'Settings',
+            'profile': 'Profile',
+            'billing': 'Billing'
         };
         return titles[pageId] || 'Dashboard';
     }
@@ -242,9 +287,18 @@ class DashboardApp {
     }
 
     initCharts() {
+        console.log('Initializing charts...');
+        
+        // Check if Chart.js is loaded
+        if (typeof Chart === 'undefined') {
+            console.error('Chart.js is not loaded!');
+            return;
+        }
+        
         // Performance Chart
         const performanceCtx = document.getElementById('performanceChart');
         if (performanceCtx) {
+            console.log('Creating performance chart...');
             this.charts.performance = new Chart(performanceCtx, {
                 type: 'line',
                 data: {
@@ -266,6 +320,10 @@ class DashboardApp {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    aspectRatio: 2,
+                    layout: {
+                        padding: 10
+                    },
                     plugins: {
                         legend: {
                             position: 'bottom'
@@ -273,7 +331,13 @@ class DashboardApp {
                     },
                     scales: {
                         y: {
-                            beginAtZero: true
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    },
+                    onResize: function(chart, size) {
+                        if (size.height > 320) {
+                            chart.canvas.style.height = '320px';
                         }
                     }
                 }
@@ -295,9 +359,18 @@ class DashboardApp {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    aspectRatio: 1,
+                    layout: {
+                        padding: 10
+                    },
                     plugins: {
                         legend: {
                             position: 'bottom'
+                        }
+                    },
+                    onResize: function(chart, size) {
+                        if (size.height > 320) {
+                            chart.canvas.style.height = '320px';
                         }
                     }
                 }
@@ -320,9 +393,24 @@ class DashboardApp {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    aspectRatio: 2,
+                    layout: {
+                        padding: 10
+                    },
                     plugins: {
                         legend: {
                             display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 250
+                        }
+                    },
+                    onResize: function(chart, size) {
+                        if (size.height > 320) {
+                            chart.canvas.style.height = '320px';
                         }
                     }
                 }
@@ -483,6 +571,16 @@ class DashboardApp {
 
     async loadDashboardData() {
         try {
+            // Check authentication first
+            const token = localStorage.getItem('postsync_access_token');
+            if (!token) {
+                this.showNotification('Session expired. Please login again.', 'error');
+                setTimeout(() => {
+                    window.location.href = '/index.html';
+                }, 2000);
+                return;
+            }
+            
             // Simulate loading dashboard data
             await this.simulateAPICall(500);
             
@@ -511,6 +609,12 @@ class DashboardApp {
             case 'settings':
                 await this.loadSettingsData();
                 break;
+            case 'profile':
+                await this.loadProfileData();
+                break;
+            case 'billing':
+                await this.loadBillingData();
+                break;
         }
     }
 
@@ -532,6 +636,16 @@ class DashboardApp {
     async loadSettingsData() {
         // Load settings data
         console.log('Loading settings data...');
+    }
+
+    async loadProfileData() {
+        // Load profile data
+        console.log('Loading profile data...');
+    }
+
+    async loadBillingData() {
+        // Load billing data
+        console.log('Loading billing data...');
     }
 
     updateStats() {
@@ -673,43 +787,50 @@ class DashboardApp {
         button.disabled = true;
 
         try {
-            // Make API call to generate content
-            const response = await fetch('http://127.0.0.1:8000/api/v1/content/generate', {
+            // Get auth token from localStorage
+            const token = localStorage.getItem('postsync_access_token');
+            if (!token) {
+                this.showNotification('Please login first to generate content', 'error');
+                setTimeout(() => {
+                    window.location.href = '/index.html';
+                }, 2000);
+                return;
+            }
+
+            // Make API call to generate real Twitter content
+            const response = await fetch('http://localhost:8000/api/v1/content/generate/real-twitter-post', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    user_id: 'demo-user',
-                    platforms: ['linkedin', 'twitter'],
-                    topics: ['ai', 'machine-learning', 'startups']
-                })
+                    'Authorization': `Bearer ${token}`
+                }
             });
 
             if (response.ok) {
                 const result = await response.json();
-                this.showNotification('Content generation started! Check Content Review in a few moments.', 'success');
+                this.showNotification('🚀 Real Twitter post generated and published successfully!', 'success');
                 
-                // Update the badge count
-                const badge = document.querySelector('.nav-badge');
-                if (badge) {
-                    const currentCount = parseInt(badge.textContent) || 0;
-                    badge.textContent = currentCount + 1;
-                    badge.style.display = 'inline';
+                // Show the generated content details
+                if (result.data && result.data.twitter_publishing && result.data.twitter_publishing.post_url) {
+                    const tweetUrl = result.data.twitter_publishing.post_url;
+                    const content = result.data.ai_generation.generated_content;
+                    
+                    setTimeout(() => {
+                        this.showNotification(`Content: "${content.substring(0, 100)}..."`, 'info');
+                    }, 1000);
+                    
+                    setTimeout(() => {
+                        this.showNotification(`View post: ${tweetUrl}`, 'info');
+                    }, 3000);
                 }
-                
-                // Switch to content review page after a delay
-                setTimeout(() => {
-                    this.showPage('content-review');
-                }, 2000);
                 
             } else {
                 throw new Error('Failed to generate content');
             }
 
         } catch (error) {
-            console.error('Content generation failed:', error);
-            this.showNotification('Content generation failed. Please check your API connections.', 'error');
+            console.error('Twitter post generation failed:', error);
+            this.showNotification('Twitter post generation failed. Please check your credentials and try again.', 'error');
         } finally {
             // Restore button state
             setTimeout(() => {
@@ -724,12 +845,220 @@ class DashboardApp {
     }
 }
 
+// Custom confirmation dialog
+function showConfirmDialog(message, onConfirm, onCancel = null) {
+    // Remove any existing dialog
+    const existingDialog = document.querySelector('.confirm-dialog-overlay');
+    if (existingDialog) {
+        existingDialog.remove();
+    }
+
+    const overlay = document.createElement('div');
+    overlay.className = 'confirm-dialog-overlay';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(10px);
+        z-index: 10001;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    `;
+
+    const dialog = document.createElement('div');
+    dialog.className = 'confirm-dialog';
+    dialog.style.cssText = `
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        padding: 30px;
+        min-width: 400px;
+        max-width: 500px;
+        box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        text-align: center;
+        transform: scale(0.9) translateY(-20px);
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    `;
+
+    dialog.innerHTML = `
+        <div style="margin-bottom: 25px;">
+            <i class="fas fa-sign-out-alt" style="font-size: 48px; opacity: 0.9; margin-bottom: 15px;"></i>
+            <h3 style="margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -0.02em;">${message}</h3>
+        </div>
+        <div style="display: flex; gap: 15px; justify-content: center;">
+            <button class="confirm-btn cancel-btn" style="
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                color: white;
+                padding: 12px 24px;
+                border-radius: 12px;
+                font-size: 14px;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                backdrop-filter: blur(10px);
+                min-width: 100px;
+            ">Cancel</button>
+            <button class="confirm-btn ok-btn" style="
+                background: rgba(255, 255, 255, 0.9);
+                border: none;
+                color: #667eea;
+                padding: 12px 24px;
+                border-radius: 12px;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                min-width: 100px;
+            ">Sign Out</button>
+        </div>
+    `;
+
+    // Add hover effects
+    const style = document.createElement('style');
+    style.textContent = `
+        .cancel-btn:hover {
+            background: rgba(255, 255, 255, 0.2) !important;
+            transform: translateY(-1px);
+        }
+        .ok-btn:hover {
+            background: white !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+    `;
+    document.head.appendChild(style);
+
+    overlay.appendChild(dialog);
+    document.body.appendChild(overlay);
+
+    // Animate in
+    requestAnimationFrame(() => {
+        overlay.style.opacity = '1';
+        dialog.style.transform = 'scale(1) translateY(0)';
+    });
+
+    // Handle buttons
+    const cancelBtn = dialog.querySelector('.cancel-btn');
+    const okBtn = dialog.querySelector('.ok-btn');
+
+    cancelBtn.onclick = () => {
+        closeDialog();
+        if (onCancel) onCancel();
+    };
+
+    okBtn.onclick = () => {
+        closeDialog();
+        onConfirm();
+    };
+
+    // Close on overlay click
+    overlay.onclick = (e) => {
+        if (e.target === overlay) {
+            closeDialog();
+            if (onCancel) onCancel();
+        }
+    };
+
+    function closeDialog() {
+        overlay.style.opacity = '0';
+        dialog.style.transform = 'scale(0.9) translateY(-20px)';
+        setTimeout(() => {
+            if (overlay.parentElement) {
+                overlay.remove();
+            }
+            style.remove();
+        }, 300);
+    }
+}
+
 // Global logout function
 function logout() {
-    if (confirm('Are you sure you want to sign out?')) {
-        localStorage.removeItem('postsync_auth');
-        window.location.href = 'index.html';
+    showConfirmDialog(
+        'Are you sure you want to sign out?',
+        () => {
+            localStorage.removeItem('postsync_auth');
+            window.location.href = 'index.html';
+        }
+    );
+}
+
+// Simple Notification Functions
+function toggleSimpleNotifications() {
+    const dropdown = document.getElementById('simpleNotificationDropdown');
+    const isVisible = dropdown.classList.contains('show');
+    
+    if (isVisible) {
+        dropdown.classList.remove('show');
+        document.removeEventListener('click', closeSimpleNotificationsOnClickOutside);
+    } else {
+        // Close any other open dropdowns
+        closeAllDropdowns();
+        
+        dropdown.classList.add('show');
+        
+        // Add click outside listener after a small delay
+        setTimeout(() => {
+            document.addEventListener('click', closeSimpleNotificationsOnClickOutside);
+        }, 10);
     }
+}
+
+function closeSimpleNotificationsOnClickOutside(event) {
+    const dropdown = document.getElementById('simpleNotificationDropdown');
+    const notificationIcon = document.getElementById('notificationIcon');
+    
+    if (!dropdown.contains(event.target) && !notificationIcon.contains(event.target)) {
+        dropdown.classList.remove('show');
+        document.removeEventListener('click', closeSimpleNotificationsOnClickOutside);
+    }
+}
+
+function closeAllDropdowns() {
+    // Close user dropdown
+    const userDropdown = document.querySelector('.user-dropdown');
+    if (userDropdown && userDropdown.style.display === 'block') {
+        userDropdown.style.display = 'none';
+    }
+    
+    // Close simple notification dropdown
+    const simpleNotificationDropdown = document.getElementById('simpleNotificationDropdown');
+    if (simpleNotificationDropdown && simpleNotificationDropdown.classList.contains('show')) {
+        simpleNotificationDropdown.classList.remove('show');
+        document.removeEventListener('click', closeSimpleNotificationsOnClickOutside);
+    }
+}
+
+// Profile Functions
+function changeProfilePicture() {
+    // Create file input
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('profilePicture').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+            window.dashboardApp.showNotification('Profile picture updated successfully!', 'success');
+        }
+    };
+    input.click();
+}
+
+function removeProfilePicture() {
+    document.getElementById('profilePicture').src = 'https://via.placeholder.com/80';
+    window.dashboardApp.showNotification('Profile picture removed', 'info');
 }
 
 // Add notification animations CSS
