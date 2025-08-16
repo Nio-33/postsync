@@ -19,15 +19,15 @@ class PostSyncApp {
             }
         });
 
-        // Form submissions
-        document.getElementById('login-form')?.addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.handleLogin(e);
-        });
-
-        document.getElementById('signup-form')?.addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.handleSignup(e);
+        // Form submissions using event delegation
+        document.addEventListener('submit', (e) => {
+            if (e.target.id === 'login-form') {
+                e.preventDefault();
+                this.handleLogin(e);
+            } else if (e.target.id === 'signup-form') {
+                e.preventDefault();
+                this.handleSignup(e);
+            }
         });
 
         // Password strength checker
@@ -114,11 +114,14 @@ class PostSyncApp {
     }
 
     async handleLogin(event) {
+        console.log('handleLogin called', event);
         const form = event.target;
         const formData = new FormData(form);
         const email = formData.get('email');
         const password = formData.get('password');
         const remember = formData.get('remember');
+
+        console.log('Login attempt:', { email, password: password ? '***' : 'empty' });
 
         // Show loading state
         const submitBtn = form.querySelector('button[type="submit"]');
@@ -127,31 +130,46 @@ class PostSyncApp {
         submitBtn.disabled = true;
 
         try {
-            // Simulate API call
-            await this.simulateAPICall(1500);
+            // Call real API endpoint
+            const response = await fetch('http://localhost:8000/api/v1/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password
+                })
+            });
 
-            // Validate credentials (mock validation)
-            if (email && password) {
+            const data = await response.json();
+
+            if (response.ok) {
                 this.showSuccessMessage('Successfully signed in!');
                 
-                // Store authentication state
+                // Store authentication tokens
+                localStorage.setItem('postsync_access_token', data.access_token);
+                localStorage.setItem('postsync_refresh_token', data.refresh_token);
+                localStorage.setItem('postsync_user_id', data.user_id);
+                
                 if (remember) {
-                    localStorage.setItem('postsync_auth', JSON.stringify({
-                        email,
-                        timestamp: Date.now()
-                    }));
+                    localStorage.setItem('postsync_remember', 'true');
                 }
 
-                // Redirect to dashboard (would navigate to main app)
+                // Redirect to dashboard
                 setTimeout(() => {
                     this.showSuccessMessage('Redirecting to dashboard...');
-                    // window.location.href = '/dashboard';
+                    window.location.href = '/dashboard.html';
                 }, 1000);
             } else {
-                throw new Error('Invalid credentials');
+                throw new Error(data.detail || 'Login failed');
             }
         } catch (error) {
-            this.showErrorMessage('Invalid email or password. Please try again.');
+            if (error.message.includes('fetch')) {
+                this.showErrorMessage('Unable to connect to server. Please make sure the backend is running.');
+            } else {
+                this.showErrorMessage(error.message || 'Invalid email or password. Please try again.');
+            }
         } finally {
             // Reset button state
             submitBtn.innerHTML = originalText;
@@ -162,8 +180,7 @@ class PostSyncApp {
     async handleSignup(event) {
         const form = event.target;
         const formData = new FormData(form);
-        const firstName = formData.get('firstName');
-        const lastName = formData.get('lastName');
+        const fullName = formData.get('firstName'); // Using firstName field for full name
         const email = formData.get('email');
         const password = formData.get('password');
         const confirmPassword = formData.get('confirmPassword');
@@ -172,7 +189,7 @@ class PostSyncApp {
         // Validation
         const errors = [];
         
-        if (!firstName || !lastName) {
+        if (!fullName) {
             errors.push('Please enter your full name');
         }
         
@@ -204,20 +221,42 @@ class PostSyncApp {
         submitBtn.disabled = true;
 
         try {
-            // Simulate API call
-            await this.simulateAPICall(2000);
+            // Call real API endpoint
+            const response = await fetch('http://localhost:8000/api/v1/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password,
+                    full_name: fullName,
+                    job_title: '',
+                    company: ''
+                })
+            });
 
-            this.showSuccessMessage('Account created successfully! Please check your email for verification.');
-            
-            // Auto-switch to login after success
-            setTimeout(() => {
-                this.showLogin();
-                // Pre-fill email in login form
-                document.getElementById('email').value = email;
-            }, 2000);
+            const data = await response.json();
+
+            if (response.ok) {
+                this.showSuccessMessage('Account created successfully! You can now sign in.');
+                
+                // Auto-switch to login after success
+                setTimeout(() => {
+                    this.showLogin();
+                    // Pre-fill email in login form
+                    document.getElementById('email').value = email;
+                }, 2000);
+            } else {
+                throw new Error(data.detail || 'Registration failed');
+            }
 
         } catch (error) {
-            this.showErrorMessage('Failed to create account. Please try again.');
+            if (error.message.includes('fetch')) {
+                this.showErrorMessage('Unable to connect to server. Please make sure the backend is running.');
+            } else {
+                this.showErrorMessage(error.message || 'Failed to create account. Please try again.');
+            }
         } finally {
             // Reset button state
             submitBtn.innerHTML = originalText;
@@ -280,14 +319,15 @@ class PostSyncApp {
     }
 
     handleNavbarScroll() {
-        const navbar = document.querySelector('.navbar');
-        if (window.scrollY > 50) {
-            navbar.style.background = 'rgba(255, 255, 255, 0.98)';
-            navbar.style.backdropFilter = 'blur(20px)';
-        } else {
-            navbar.style.background = 'rgba(255, 255, 255, 0.95)';
-            navbar.style.backdropFilter = 'blur(10px)';
-        }
+        // Disabled: Keep navbar transparent on scroll
+        // const navbar = document.querySelector('.navbar');
+        // if (window.scrollY > 50) {
+        //     navbar.style.background = 'rgba(255, 255, 255, 0.98)';
+        //     navbar.style.backdropFilter = 'blur(20px)';
+        // } else {
+        //     navbar.style.background = 'rgba(255, 255, 255, 0.95)';
+        //     navbar.style.backdropFilter = 'blur(10px)';
+        // }
     }
 
     handleResize() {
@@ -345,11 +385,11 @@ class PostSyncApp {
 
     // Navigation methods (called from HTML onclick attributes)
     showLogin() {
-        this.showPage('login');
+        window.location.href = 'auth.html';
     }
 
     showSignup() {
-        this.showPage('signup');
+        window.location.href = 'auth.html';
     }
 
     showLanding() {
@@ -444,24 +484,9 @@ function addInteractiveElements() {
     `;
     document.head.appendChild(style);
 
-    // Add typing effect to hero title
-    const heroTitle = document.querySelector('.hero-title');
-    if (heroTitle) {
-        const text = heroTitle.innerHTML;
-        heroTitle.innerHTML = '';
-        let i = 0;
-        
-        function typeWriter() {
-            if (i < text.length) {
-                heroTitle.innerHTML += text.charAt(i);
-                i++;
-                setTimeout(typeWriter, 50);
-            }
-        }
-        
-        // Start typing effect after a short delay
-        setTimeout(typeWriter, 500);
-    }
+    // Skip typing effect to preserve HTML structure
+    // The typing effect was breaking the HTML formatting for the gradient text
+    // Keeping the original HTML intact for proper styling
 
     // Add parallax effect to floating icons
     window.addEventListener('scroll', () => {

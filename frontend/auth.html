@@ -109,27 +109,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
             margin: 30px auto 20px auto;
             cursor: pointer;
             width: 100%;
             text-align: center;
         }
 
-        .logo i {
-            width: 35px;
-            height: 35px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 18px;
-        }
-
         .logo span {
-            font-size: 24px;
+            font-size: 32px;
             font-weight: 700;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             -webkit-background-clip: text;
@@ -138,7 +125,7 @@
         }
 
         .title {
-            font-size: 28px;
+            font-size: 22px;
             font-weight: 600;
             text-align: center;
             color: #333;
@@ -319,14 +306,154 @@
                 order: -1;
             }
         }
+
+        /* Custom Notification Styles */
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            max-width: 420px;
+        }
+
+        .notification {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 25px;
+            margin-bottom: 15px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            transform: translateX(450px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .notification::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            pointer-events: none;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .notification.error {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+        }
+
+        .notification.success {
+            background: linear-gradient(135deg, #51cf66 0%, #40c057 100%);
+            box-shadow: 0 10px 30px rgba(81, 207, 102, 0.3);
+        }
+
+        .notification.warning {
+            background: linear-gradient(135deg, #ffd43b 0%, #fab005 100%);
+            box-shadow: 0 10px 30px rgba(255, 212, 59, 0.3);
+            color: #333;
+        }
+
+        .notification-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .notification-icon {
+            font-size: 20px;
+            margin-right: 12px;
+            opacity: 0.9;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            font-size: 16px;
+            letter-spacing: -0.02em;
+        }
+
+        .notification-message {
+            font-size: 14px;
+            line-height: 1.5;
+            opacity: 0.95;
+            margin-left: 32px;
+        }
+
+        .notification-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: inherit;
+            font-size: 20px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .notification-close:hover {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .notification-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.3);
+            transition: width linear;
+            border-radius: 0 0 15px 15px;
+        }
+
+        @media (max-width: 480px) {
+            .notification-container {
+                left: 20px;
+                right: 20px;
+                max-width: none;
+            }
+            
+            .notification {
+                transform: translateY(-100px);
+            }
+            
+            .notification.show {
+                transform: translateY(0);
+            }
+        }
+
+        /* Terms of Service Link Styling */
+        a[href="terms.html"]:hover {
+            color: #5a67d8 !important;
+            text-decoration: underline !important;
+        }
     </style>
 </head>
 <body>
+    <!-- Custom Notification Container -->
+    <div class="notification-container" id="notificationContainer"></div>
+    
     <div class="wrapper" id="wrapper">
         <!-- Login Form -->
         <div class="form-box login">
             <div class="logo" onclick="window.location.href='index.html'">
-                <i class="bx bx-bot"></i>
                 <span>PostSync</span>
             </div>
             
@@ -350,7 +477,7 @@
                         <input type="checkbox" name="remember" id="remember">
                         Remember me
                     </label>
-                    <a href="#">Forgot Your Password?</a>
+                    <a href="forgot-password.html">Forgot Your Password?</a>
                 </div>
                 
                 <button type="submit" class="btn animation" style="--i: 4;">Sign In</button>
@@ -360,7 +487,6 @@
         <!-- Register Form -->
         <div class="form-box register">
             <div class="logo" onclick="window.location.href='index.html'">
-                <i class="bx bx-bot"></i>
                 <span>PostSync</span>
             </div>
             
@@ -394,7 +520,7 @@
                 <div class="remember-forgot animation" style="--i: 22; --j: 5;">
                     <label>
                         <input type="checkbox" name="terms" id="terms" required>
-                        I agree to the Terms of Service
+                        I agree to the <a href="terms.html" target="_blank" style="color: #667eea; text-decoration: none; font-weight: 500;">Terms of Service</a>
                     </label>
                 </div>
                 
@@ -418,6 +544,133 @@
     </div>
 
     <script>
+        // Custom Notification System
+        class NotificationManager {
+            constructor() {
+                this.container = document.getElementById('notificationContainer');
+                this.notifications = [];
+            }
+
+            show(message, type = 'info', duration = 5000) {
+                const notification = this.createNotification(message, type);
+                this.container.appendChild(notification);
+                this.notifications.push(notification);
+
+                // Trigger animation immediately
+                requestAnimationFrame(() => {
+                    notification.classList.add('show');
+                });
+
+                // Auto remove
+                if (duration > 0) {
+                    setTimeout(() => {
+                        this.remove(notification);
+                    }, duration);
+                }
+
+                return notification;
+            }
+
+            createNotification(message, type) {
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+
+                const icon = this.getIcon(type);
+                const title = this.getTitle(type);
+
+                notification.innerHTML = `
+                    <div class="notification-header">
+                        <i class="notification-icon bx ${icon}"></i>
+                        <div class="notification-title">${title}</div>
+                    </div>
+                    <div class="notification-message">${message}</div>
+                    <button class="notification-close" onclick="notificationManager.remove(this.parentElement)">
+                        <i class="bx bx-x"></i>
+                    </button>
+                    <div class="notification-progress"></div>
+                `;
+
+                return notification;
+            }
+
+            getIcon(type) {
+                const icons = {
+                    success: 'bx-check-circle',
+                    error: 'bx-error-circle',
+                    warning: 'bx-error',
+                    info: 'bx-info-circle'
+                };
+                return icons[type] || icons.info;
+            }
+
+            getTitle(type) {
+                const titles = {
+                    success: 'Success',
+                    error: 'Error',
+                    warning: 'Warning',
+                    info: 'PostSync'
+                };
+                return titles[type] || titles.info;
+            }
+
+            remove(notification) {
+                if (notification && notification.parentElement) {
+                    notification.classList.remove('show');
+                    
+                    setTimeout(() => {
+                        if (notification.parentElement) {
+                            notification.parentElement.removeChild(notification);
+                        }
+                        
+                        const index = this.notifications.indexOf(notification);
+                        if (index > -1) {
+                            this.notifications.splice(index, 1);
+                        }
+                    }, 400);
+                }
+            }
+
+            success(message, duration = 5000) {
+                return this.show(message, 'success', duration);
+            }
+
+            error(message, duration = 7000) {
+                return this.show(message, 'error', duration);
+            }
+
+            warning(message, duration = 6000) {
+                return this.show(message, 'warning', duration);
+            }
+
+            info(message, duration = 5000) {
+                return this.show(message, 'info', duration);
+            }
+        }
+
+        // Initialize notification manager
+        const notificationManager = new NotificationManager();
+
+        // Override default alert function
+        function showNotification(message, type = 'info') {
+            // Handle multiline messages by replacing newlines with <br>
+            const formattedMessage = message.replace(/\n/g, '<br>');
+            
+            if (type === 'error' || message.toLowerCase().includes('error') || 
+                message.toLowerCase().includes('failed') || message.toLowerCase().includes('unable') ||
+                message.toLowerCase().includes('invalid') || message.toLowerCase().includes('passwords do not match')) {
+                notificationManager.error(formattedMessage);
+            } else if (message.toLowerCase().includes('success') || 
+                     message.toLowerCase().includes('created') || 
+                     message.toLowerCase().includes('signed in')) {
+                notificationManager.success(formattedMessage);
+            } else if (message.toLowerCase().includes('warning') || 
+                     message.toLowerCase().includes('match') || message.toLowerCase().includes('exists')) {
+                notificationManager.warning(formattedMessage);
+            } else {
+                notificationManager.info(formattedMessage);
+            }
+        }
+
         function toggleForm() {
             const wrapper = document.getElementById('wrapper');
             wrapper.classList.toggle('active');
@@ -437,7 +690,7 @@
             submitBtn.disabled = true;
 
             try {
-                const response = await fetch('http://localhost:8000/api/v1/auth/login', {
+                const response = await fetch('http://127.0.0.1:8080/api/v1/auth/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -459,19 +712,16 @@
                         localStorage.setItem('postsync_remember', 'true');
                     }
 
-                    alert('Successfully signed in! Redirecting to dashboard...');
-                    
-                    setTimeout(() => {
-                        window.location.href = '/dashboard.html';
-                    }, 1000);
+                    // Redirect directly to dashboard without notification
+                    window.location.href = 'dashboard.html';
                 } else {
                     throw new Error(data.detail || 'Login failed');
                 }
             } catch (error) {
                 if (error.message.includes('fetch')) {
-                    alert('Unable to connect to server. Please make sure the backend is running.');
+                    showNotification('Unable to connect to server. Please make sure the backend is running.', 'error');
                 } else {
-                    alert(error.message || 'Invalid email or password. Please try again.');
+                    showNotification(error.message || 'Invalid email or password. Please try again.', 'error');
                 }
             } finally {
                 submitBtn.innerHTML = originalText;
@@ -511,7 +761,7 @@
             }
 
             if (errors.length > 0) {
-                alert(errors.join('\n'));
+                showNotification(errors.join('\n'), 'error');
                 return;
             }
             
@@ -521,7 +771,7 @@
             submitBtn.disabled = true;
 
             try {
-                const response = await fetch('http://localhost:8000/api/v1/auth/register', {
+                const response = await fetch('http://127.0.0.1:8080/api/v1/auth/register', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -538,21 +788,21 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    alert('Account created successfully! You can now sign in.');
+                    showNotification('Account created successfully! You can now sign in.');
                     
+                    // Quick transition to login form
                     setTimeout(() => {
                         toggleForm();
                         document.getElementById('email').value = email;
-                    }, 2000);
+                    }, 100);
                 } else {
                     throw new Error(data.detail || 'Registration failed');
                 }
-
             } catch (error) {
                 if (error.message.includes('fetch')) {
-                    alert('Unable to connect to server. Please make sure the backend is running.');
+                    showNotification('Unable to connect to server. Please make sure the backend is running.', 'error');
                 } else {
-                    alert(error.message || 'Failed to create account. Please try again.');
+                    showNotification(error.message || 'Failed to create account. Please try again.', 'error');
                 }
             } finally {
                 submitBtn.innerHTML = originalText;
