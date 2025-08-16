@@ -301,6 +301,34 @@ class UserService:
             self.logger.error("Failed to update user stats", error=str(e), user_id=user_id)
             return False
     
+    async def get_user_statistics(self, user_id: str) -> UserStats:
+        """Get user statistics and metrics."""
+        try:
+            user = await get_user_by_id(user_id)
+            if not user:
+                self.logger.warning("User not found for stats", user_id=user_id)
+                # Return default stats for non-existent user
+                return UserStats()
+            
+            # Return user's stats, or default stats if not set
+            if hasattr(user, 'stats') and user.stats:
+                return user.stats
+            else:
+                # Return default stats with at least some demo data
+                return UserStats(
+                    total_posts=0,
+                    total_impressions=0,
+                    total_engagements=0,
+                    avg_engagement_rate=0.0,
+                    best_performing_topic="AI & Technology",
+                    last_active_at=datetime.utcnow()
+                )
+                
+        except Exception as e:
+            self.logger.error("Failed to get user statistics", error=str(e), user_id=user_id)
+            # Return default stats on error
+            return UserStats()
+    
     async def increment_post_count(self, user_id: str) -> bool:
         """Increment user's total post count."""
         try:

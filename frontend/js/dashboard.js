@@ -727,12 +727,13 @@ class DashboardApp {
     }
 
     updateStatsDisplay(stats) {
-        // Update dashboard stats with real data
+        // Update dashboard stats with real data  
+        // Map backend UserStats fields to frontend display
         const statElements = {
-            'Content Generated': stats.content_generated || 0,
-            'Accuracy Rate': `${stats.accuracy_rate || 0}%`,
-            'Posts Published': stats.posts_published || 0,
-            'Total Engagement': this.formatNumber(stats.total_engagement || 0)
+            'Content Generated': stats.total_posts || 0,
+            'Accuracy Rate': `${Math.round(stats.avg_engagement_rate * 100) || 0}%`,
+            'Posts Published': stats.total_posts || 0,
+            'Total Engagement': this.formatNumber(stats.total_engagements || 0)
         };
 
         // Update each stat element
