@@ -855,10 +855,22 @@
 .account-item {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    justify-content: space-between;
     padding: 1rem;
     background: var(--gray-50);
     border-radius: 8px;
+}
+
+.account-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.account-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .account-item i {
@@ -867,11 +879,40 @@
 }
 
 .account-item .status {
-    margin-left: auto;
     font-size: 0.75rem;
     font-weight: 500;
     padding: 0.25rem 0.5rem;
     border-radius: 12px;
+}
+
+.btn-connect, .btn-disconnect {
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.375rem 0.75rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-connect {
+    background: var(--primary-blue);
+    color: white;
+}
+
+.btn-connect:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+.btn-disconnect {
+    background: #ef4444;
+    color: white;
+}
+
+.btn-disconnect:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
 }
 
 .status.connected {

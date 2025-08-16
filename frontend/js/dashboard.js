@@ -945,6 +945,73 @@ class DashboardApp {
     async simulateAPICall(delay = 1000) {
         return new Promise(resolve => setTimeout(resolve, delay));
     }
+
+    // Social Media Connection Methods
+    async connectSocialAccount(platform) {
+        try {
+            const response = await fetch(`http://127.0.0.1:8000/api/v1/auth/${platform}/oauth`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('postsync_access_token')}`,
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                // Redirect to OAuth URL
+                window.location.href = data.oauth_url;
+            } else {
+                throw new Error(`Failed to initiate ${platform} OAuth`);
+            }
+        } catch (error) {
+            console.error(`Error connecting ${platform}:`, error);
+            this.showNotification(`Failed to connect ${platform}. Please try again.`, 'error');
+        }
+    }
+
+    async disconnectSocialAccount(platform) {
+        try {
+            const response = await fetch(`http://127.0.0.1:8000/api/v1/users/social-accounts/${platform}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('postsync_access_token')}`,
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            if (response.ok) {
+                this.updateAccountStatus(platform, false);
+                this.showNotification(`${platform} account disconnected successfully`, 'success');
+            } else {
+                throw new Error(`Failed to disconnect ${platform}`);
+            }
+        } catch (error) {
+            console.error(`Error disconnecting ${platform}:`, error);
+            this.showNotification(`Failed to disconnect ${platform}. Please try again.`, 'error');
+        }
+    }
+
+    updateAccountStatus(platform, isConnected) {
+        const accountItem = document.querySelector(`[data-platform="${platform}"]`);
+        if (!accountItem) return;
+
+        const statusElement = accountItem.querySelector('.status');
+        const connectBtn = accountItem.querySelector('.btn-connect');
+        const disconnectBtn = accountItem.querySelector('.btn-disconnect');
+
+        if (isConnected) {
+            statusElement.textContent = 'Connected';
+            statusElement.className = 'status connected';
+            connectBtn.style.display = 'none';
+            disconnectBtn.style.display = 'inline-block';
+        } else {
+            statusElement.textContent = 'Not Connected';
+            statusElement.className = 'status disconnected';
+            connectBtn.style.display = 'inline-block';
+            disconnectBtn.style.display = 'none';
+        }
+    }
 }
 
 // Custom confirmation dialog
@@ -1161,6 +1228,25 @@ function changeProfilePicture() {
 function removeProfilePicture() {
     document.getElementById('profilePicture').src = 'https://via.placeholder.com/80';
     window.dashboardApp.showNotification('Profile picture removed', 'info');
+}
+
+// Global functions for social media account management
+function connectAccount(platform) {
+    if (window.dashboardApp) {
+        window.dashboardApp.connectSocialAccount(platform);
+    }
+}
+
+function disconnectAccount(platform) {
+    if (window.dashboardApp) {
+        // Show confirmation dialog
+        showConfirmDialog(
+            `Are you sure you want to disconnect your ${platform} account?`,
+            () => {
+                window.dashboardApp.disconnectSocialAccount(platform);
+            }
+        );
+    }
 }
 
 // Add notification animations CSS

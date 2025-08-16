@@ -476,6 +476,56 @@ async def disconnect_social_account(
 
 
 @router.get(
+    "/twitter/oauth",
+    dependencies=[Depends(security)]
+)
+async def twitter_oauth_initiate(
+    current_user: User = Depends(get_current_user),
+    auth_service: AuthService = Depends(get_auth_service),
+) -> Dict[str, str]:
+    """
+    Initiate Twitter OAuth flow.
+    
+    Returns the OAuth URL for user to authorize the application.
+    """
+    try:
+        oauth_url = await auth_service.get_twitter_oauth_url(current_user.id)
+        return {"oauth_url": oauth_url}
+        
+    except Exception as e:
+        logger.error("Failed to initiate Twitter OAuth", error=str(e), user_id=current_user.id)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to initiate Twitter OAuth"
+        )
+
+
+@router.get(
+    "/linkedin/oauth",
+    dependencies=[Depends(security)]
+)
+async def linkedin_oauth_initiate(
+    current_user: User = Depends(get_current_user),
+    auth_service: AuthService = Depends(get_auth_service),
+) -> Dict[str, str]:
+    """
+    Initiate LinkedIn OAuth flow.
+    
+    Returns the OAuth URL for user to authorize the application.
+    """
+    try:
+        oauth_url = await auth_service.get_linkedin_oauth_url(current_user.id)
+        return {"oauth_url": oauth_url}
+        
+    except Exception as e:
+        logger.error("Failed to initiate LinkedIn OAuth", error=str(e), user_id=current_user.id)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to initiate LinkedIn OAuth"
+        )
+
+
+@router.get(
     "/me",
     response_model=UserResponse,
     dependencies=[Depends(security)]

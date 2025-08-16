@@ -383,20 +383,38 @@
                 <div class="settings-section">
                     <h3>Connected Accounts</h3>
                     <div class="connected-accounts">
-                        <div class="account-item">
-                            <i class="fab fa-linkedin"></i>
-                            <span>LinkedIn</span>
-                            <span class="status connected">Connected</span>
+                        <div class="account-item" data-platform="linkedin">
+                            <div class="account-info">
+                                <i class="fab fa-linkedin"></i>
+                                <span>LinkedIn</span>
+                            </div>
+                            <div class="account-actions">
+                                <span class="status connected">Connected</span>
+                                <button class="btn-disconnect" onclick="disconnectAccount('linkedin')" style="display: none;">Disconnect</button>
+                                <button class="btn-connect" onclick="connectAccount('linkedin')" style="display: none;">Connect</button>
+                            </div>
                         </div>
-                        <div class="account-item">
-                            <i class="fab fa-twitter"></i>
-                            <span>Twitter</span>
-                            <span class="status disconnected">Not Connected</span>
+                        <div class="account-item" data-platform="twitter">
+                            <div class="account-info">
+                                <i class="fab fa-twitter"></i>
+                                <span>Twitter</span>
+                            </div>
+                            <div class="account-actions">
+                                <span class="status disconnected">Not Connected</span>
+                                <button class="btn-disconnect" onclick="disconnectAccount('twitter')" style="display: none;">Disconnect</button>
+                                <button class="btn-connect" onclick="connectAccount('twitter')">Connect</button>
+                            </div>
                         </div>
-                        <div class="account-item">
-                            <i class="fab fa-reddit"></i>
-                            <span>Reddit</span>
-                            <span class="status connected">Connected</span>
+                        <div class="account-item" data-platform="reddit">
+                            <div class="account-info">
+                                <i class="fab fa-reddit"></i>
+                                <span>Reddit</span>
+                            </div>
+                            <div class="account-actions">
+                                <span class="status connected">Connected</span>
+                                <button class="btn-disconnect" onclick="disconnectAccount('reddit')" style="display: none;">Disconnect</button>
+                                <button class="btn-connect" onclick="connectAccount('reddit')" style="display: none;">Connect</button>
+                            </div>
                         </div>
                     </div>
                 </div>
