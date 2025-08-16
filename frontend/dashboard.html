@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - PostSync</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/styles.css?v=3">
+    <link rel="stylesheet" href="css/dashboard.css?v=3">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -213,10 +213,10 @@
                     
                     <div class="activity-item">
                         <div class="activity-icon twitter">
-                            <i class="fab fa-twitter"></i>
+                            <span class="x-icon">𝕏</span>
                         </div>
                         <div class="activity-content">
-                            <h4>Twitter thread generated</h4>
+                            <h4>X thread generated</h4>
                             <p>"Startup Funding Trends 2024" - Ready for review</p>
                             <span class="activity-time">4 hours ago</span>
                         </div>
@@ -226,12 +226,12 @@
                     </div>
                     
                     <div class="activity-item">
-                        <div class="activity-icon reddit">
-                            <i class="fab fa-reddit"></i>
+                        <div class="activity-icon linkedin">
+                            <i class="fab fa-linkedin"></i>
                         </div>
                         <div class="activity-content">
-                            <h4>Reddit post scheduled</h4>
-                            <p>"Tech Innovation Discussion" - Publishing at 2:00 PM</p>
+                            <h4>LinkedIn post scheduled</h4>
+                            <p>"Professional Development Insights" - Publishing at 2:00 PM</p>
                             <span class="activity-time">6 hours ago</span>
                         </div>
                         <div class="activity-status scheduled">
@@ -249,56 +249,90 @@
                 <p>Review and approve AI-generated content before publishing</p>
             </div>
             
-            <!-- Quick Filters -->
-            <div class="quick-filters">
-                <button class="filter-btn active" data-filter="all">All Content</button>
-                <button class="filter-btn" data-filter="pending">Needs Review (12)</button>
-                <button class="filter-btn" data-filter="approved">Approved (8)</button>
-                <button class="filter-btn" data-filter="scheduled">Scheduled (5)</button>
-            </div>
-            
-            <!-- Content Items -->
-            <div class="content-items">
-                <div class="content-item" data-status="pending">
-                    <div class="content-preview">
-                        <div class="platform-badge linkedin">
-                            <i class="fab fa-linkedin"></i>
-                            LinkedIn
-                        </div>
-                        <h4>AI Research Breakthrough in Machine Learning</h4>
-                        <p>🚀 Just discovered an incredible breakthrough in AI research that's changing everything we know about machine learning algorithms...</p>
-                        <div class="content-metrics">
-                            <span class="metric">
-                                <i class="fas fa-check-circle"></i>
-                                95% Fact-check
-                            </span>
-                            <span class="metric">
-                                <i class="fas fa-chart-line"></i>
-                                92% Quality Score
-                            </span>
-                            <span class="metric">
-                                <i class="fas fa-clock"></i>
-                                2 hours ago
-                            </span>
-                        </div>
-                    </div>
-                    <div class="content-actions">
-                        <button class="btn btn-success">
-                            <i class="fas fa-check"></i>
-                            Approve
-                        </button>
-                        <button class="btn btn-error">
-                            <i class="fas fa-times"></i>
-                            Reject
-                        </button>
-                        <button class="btn btn-secondary">
-                            <i class="fas fa-edit"></i>
-                            Edit
+            <!-- Search and Filter Controls -->
+            <div class="content-controls">
+                <div class="search-container">
+                    <div class="search-box">
+                        <input type="text" id="contentSearch" placeholder="Search content..." class="search-input">
+                        <button class="search-btn" onclick="dashboard.searchContent()">
+                            <i class="fas fa-search"></i>
                         </button>
                     </div>
                 </div>
                 
-                <!-- More content items would go here -->
+                <div class="filter-controls">
+                    <select id="statusFilter" class="filter-select" onchange="dashboard.filterContent()">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending Review</option>
+                        <option value="approved">Approved</option>
+                        <option value="scheduled">Scheduled</option>
+                        <option value="published">Published</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                    
+                    <select id="platformFilter" class="filter-select" onchange="dashboard.filterContent()">
+                        <option value="">All Platforms</option>
+                        <option value="linkedin">LinkedIn</option>
+                        <option value="twitter">X (Twitter)</option>
+                    </select>
+                    
+                    <select id="topicFilter" class="filter-select" onchange="dashboard.filterContent()">
+                        <option value="">All Topics</option>
+                        <option value="ai_technology">AI & Technology</option>
+                        <option value="business_insights">Business Insights</option>
+                        <option value="startup_news">Startup News</option>
+                        <option value="industry_trends">Industry Trends</option>
+                    </select>
+                </div>
+                
+                <div class="bulk-actions">
+                    <button class="btn btn-secondary" onclick="dashboard.selectAllContent()">
+                        <i class="fas fa-check-square"></i>
+                        Select All
+                    </button>
+                    <button class="btn btn-success" onclick="dashboard.bulkApprove()" disabled id="bulkApproveBtn">
+                        <i class="fas fa-check"></i>
+                        Bulk Approve
+                    </button>
+                    <button class="btn btn-error" onclick="dashboard.bulkReject()" disabled id="bulkRejectBtn">
+                        <i class="fas fa-times"></i>
+                        Bulk Reject
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Content Items Container -->
+            <div class="content-items" id="contentItemsContainer">
+                <div class="loading-state" id="contentLoading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading content...</p>
+                </div>
+                
+                <div class="empty-state" id="contentEmpty" style="display: none;">
+                    <i class="fas fa-file-alt"></i>
+                    <h3>No content found</h3>
+                    <p>No content matches your current filters. Try adjusting your search or filters.</p>
+                </div>
+            </div>
+            
+            <!-- Pagination Controls -->
+            <div class="pagination-container" id="contentPagination" style="display: none;">
+                <div class="pagination-info">
+                    <span id="paginationInfo">Showing 1-10 of 25 items</span>
+                </div>
+                <div class="pagination-controls">
+                    <button class="pagination-btn" id="prevPageBtn" onclick="dashboard.prevPage()" disabled>
+                        <i class="fas fa-chevron-left"></i>
+                        Previous
+                    </button>
+                    <div class="page-numbers" id="pageNumbers">
+                        <!-- Page numbers will be generated dynamically -->
+                    </div>
+                    <button class="pagination-btn" id="nextPageBtn" onclick="dashboard.nextPage()">
+                        Next
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -309,24 +343,140 @@
                 <p>Track your content performance and engagement metrics</p>
             </div>
             
+            <!-- Analytics Controls -->
+            <div class="analytics-controls">
+                <div class="time-range-selector">
+                    <select id="analyticsTimeRange" onchange="dashboard.updateAnalyticsTimeRange()">
+                        <option value="7d">Last 7 days</option>
+                        <option value="30d" selected>Last 30 days</option>
+                        <option value="90d">Last 90 days</option>
+                        <option value="1y">Last year</option>
+                    </select>
+                </div>
+                <div class="analytics-filters">
+                    <select id="analyticsPlatform" onchange="dashboard.filterAnalytics()">
+                        <option value="">All Platforms</option>
+                        <option value="linkedin">LinkedIn</option>
+                        <option value="twitter">X (Twitter)</option>
+                    </select>
+                    <button class="btn btn-secondary" onclick="dashboard.exportAnalytics()">
+                        <i class="fas fa-download"></i>
+                        Export Data
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Key Metrics Summary -->
+            <div class="analytics-summary">
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <div class="summary-content">
+                        <h3 id="totalImpressions">0</h3>
+                        <p>Total Impressions</p>
+                        <span class="summary-change positive" id="impressionsChange">+0%</span>
+                    </div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <div class="summary-content">
+                        <h3 id="totalEngagements">0</h3>
+                        <p>Total Engagements</p>
+                        <span class="summary-change positive" id="engagementsChange">+0%</span>
+                    </div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                    <div class="summary-content">
+                        <h3 id="engagementRate">0%</h3>
+                        <p>Engagement Rate</p>
+                        <span class="summary-change positive" id="engagementRateChange">+0%</span>
+                    </div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <div class="summary-content">
+                        <h3 id="topPostEngagement">0</h3>
+                        <p>Best Post</p>
+                        <span class="summary-change positive" id="topPostChange">+0%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Charts Grid -->
             <div class="analytics-grid">
-                <div class="analytics-card">
-                    <h3>Engagement Trends</h3>
-                    <canvas id="engagementChart"></canvas>
+                <div class="analytics-card large">
+                    <div class="chart-header">
+                        <h3>Engagement Trends</h3>
+                        <div class="chart-legend">
+                            <span class="legend-item impressions">
+                                <span class="legend-color"></span>
+                                Impressions
+                            </span>
+                            <span class="legend-item engagements">
+                                <span class="legend-color"></span>
+                                Engagements
+                            </span>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="engagementTrendsChart"></canvas>
+                    </div>
                 </div>
                 
                 <div class="analytics-card">
-                    <h3>Top Performing Content</h3>
-                    <div class="top-content-list">
-                        <div class="top-content-item">
-                            <span class="rank">1</span>
-                            <div class="content-info">
-                                <h4>AI Research Breakthrough</h4>
-                                <span class="platform">LinkedIn</span>
-                            </div>
-                            <span class="engagement">1.2K</span>
+                    <div class="chart-header">
+                        <h3>Platform Performance</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="platformPerformanceChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="analytics-card">
+                    <div class="chart-header">
+                        <h3>Content Type Analysis</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="contentTypeChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="analytics-card">
+                    <div class="chart-header">
+                        <h3>Publishing Schedule Heatmap</h3>
+                    </div>
+                    <div class="heatmap-container" id="publishingHeatmap">
+                        <!-- Heatmap will be generated by JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="analytics-card large">
+                    <div class="chart-header">
+                        <h3>Top Performing Content</h3>
+                        <button class="btn btn-link" onclick="dashboard.viewAllContent()">View All</button>
+                    </div>
+                    <div class="top-content-container" id="topContentList">
+                        <div class="loading-state" id="topContentLoading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Loading top content...</p>
                         </div>
-                        <!-- More items... -->
+                    </div>
+                </div>
+                
+                <div class="analytics-card">
+                    <div class="chart-header">
+                        <h3>Audience Growth</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="audienceGrowthChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -362,63 +512,226 @@
                 <p>Manage your account preferences and configuration</p>
             </div>
             
-            <div class="settings-grid">
-                <div class="settings-section">
-                    <h3>Content Preferences</h3>
-                    <div class="setting-item">
-                        <label>Posting Frequency</label>
-                        <select>
-                            <option>Daily</option>
-                            <option>Every 2 days</option>
-                            <option>Weekly</option>
-                        </select>
+            <!-- Settings Form -->
+            <form id="settingsForm" class="settings-form">
+                <div class="settings-grid">
+                    <!-- Content Preferences -->
+                    <div class="settings-section">
+                        <h3>Content Preferences</h3>
+                        
+                        <div class="setting-item">
+                            <label for="postingFrequency">Posting Frequency</label>
+                            <select id="postingFrequency" name="postingFrequency" onchange="dashboard.updateSetting('postingFrequency', this.value)">
+                                <option value="daily">Daily</option>
+                                <option value="every_2_days">Every 2 days</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                            <small class="setting-description">How often content should be automatically posted</small>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <label for="qualityThreshold">Quality Threshold</label>
+                            <div class="range-input-container">
+                                <input type="range" id="qualityThreshold" name="qualityThreshold" min="70" max="99" value="85" 
+                                       oninput="dashboard.updateQualityThreshold(this.value)">
+                                <span id="qualityThresholdValue">85%</span>
+                            </div>
+                            <small class="setting-description">Minimum quality score required for automatic posting</small>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <label for="autoApproval">Auto-Approval</label>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="autoApproval" name="autoApproval" onchange="dashboard.updateSetting('autoApproval', this.checked)">
+                                <span class="toggle-slider"></span>
+                            </div>
+                            <small class="setting-description">Automatically approve content that meets quality threshold</small>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <label for="contentTopics">Preferred Topics</label>
+                            <div class="topic-tags" id="contentTopics">
+                                <div class="topic-tag active" data-topic="ai_technology">
+                                    <span>AI & Technology</span>
+                                    <button type="button" onclick="dashboard.toggleTopic('ai_technology')">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <div class="topic-tag active" data-topic="business_insights">
+                                    <span>Business Insights</span>
+                                    <button type="button" onclick="dashboard.toggleTopic('business_insights')">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <div class="topic-tag" data-topic="startup_news">
+                                    <span>Startup News</span>
+                                    <button type="button" onclick="dashboard.toggleTopic('startup_news')">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                                <div class="topic-tag" data-topic="industry_trends">
+                                    <span>Industry Trends</span>
+                                    <button type="button" onclick="dashboard.toggleTopic('industry_trends')">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <small class="setting-description">Content topics to focus on for generation</small>
+                        </div>
                     </div>
-                    <div class="setting-item">
-                        <label>Quality Threshold</label>
-                        <input type="range" min="70" max="99" value="85">
-                        <span>85%</span>
+                    
+                    <!-- Notification Preferences -->
+                    <div class="settings-section">
+                        <h3>Notification Preferences</h3>
+                        
+                        <div class="setting-item">
+                            <label for="emailNotifications">Email Notifications</label>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="emailNotifications" name="emailNotifications" checked 
+                                       onchange="dashboard.updateSetting('emailNotifications', this.checked)">
+                                <span class="toggle-slider"></span>
+                            </div>
+                            <small class="setting-description">Receive email updates about content performance</small>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <label for="pushNotifications">Push Notifications</label>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="pushNotifications" name="pushNotifications" 
+                                       onchange="dashboard.updateSetting('pushNotifications', this.checked)">
+                                <span class="toggle-slider"></span>
+                            </div>
+                            <small class="setting-description">Browser notifications for important updates</small>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <label for="weeklyReports">Weekly Reports</label>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="weeklyReports" name="weeklyReports" checked 
+                                       onchange="dashboard.updateSetting('weeklyReports', this.checked)">
+                                <span class="toggle-slider"></span>
+                            </div>
+                            <small class="setting-description">Weekly performance summary emails</small>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <label for="notificationTime">Daily Digest Time</label>
+                            <select id="notificationTime" name="notificationTime" onchange="dashboard.updateSetting('notificationTime', this.value)">
+                                <option value="08:00">8:00 AM</option>
+                                <option value="12:00">12:00 PM</option>
+                                <option value="17:00" selected>5:00 PM</option>
+                                <option value="20:00">8:00 PM</option>
+                            </select>
+                            <small class="setting-description">When to send daily digest emails</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Connected Accounts -->
+                    <div class="settings-section">
+                        <h3>Connected Accounts</h3>
+                        <div class="connected-accounts" id="connectedAccounts">
+                            <!-- Accounts will be loaded dynamically -->
+                        </div>
+                        <button type="button" class="btn btn-secondary" onclick="dashboard.refreshConnections()">
+                            <i class="fas fa-sync-alt"></i>
+                            Refresh Connections
+                        </button>
+                    </div>
+                    
+                    <!-- AI & Generation Settings -->
+                    <div class="settings-section">
+                        <h3>AI & Generation</h3>
+                        
+                        <div class="setting-item">
+                            <label for="contentStyle">Content Style</label>
+                            <select id="contentStyle" name="contentStyle" onchange="dashboard.updateSetting('contentStyle', this.value)">
+                                <option value="professional">Professional</option>
+                                <option value="casual">Casual</option>
+                                <option value="technical">Technical</option>
+                                <option value="creative">Creative</option>
+                            </select>
+                            <small class="setting-description">Tone and style for generated content</small>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <label for="contentLength">Default Content Length</label>
+                            <select id="contentLength" name="contentLength" onchange="dashboard.updateSetting('contentLength', this.value)">
+                                <option value="short">Short (1-2 sentences)</option>
+                                <option value="medium" selected>Medium (3-5 sentences)</option>
+                                <option value="long">Long (6+ sentences)</option>
+                            </select>
+                            <small class="setting-description">Preferred length for generated posts</small>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <label for="includeHashtags">Include Hashtags</label>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="includeHashtags" name="includeHashtags" checked 
+                                       onchange="dashboard.updateSetting('includeHashtags', this.checked)">
+                                <span class="toggle-slider"></span>
+                            </div>
+                            <small class="setting-description">Automatically add relevant hashtags to posts</small>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <label for="maxHashtags">Max Hashtags</label>
+                            <div class="range-input-container">
+                                <input type="range" id="maxHashtags" name="maxHashtags" min="1" max="10" value="5" 
+                                       oninput="dashboard.updateMaxHashtags(this.value)">
+                                <span id="maxHashtagsValue">5</span>
+                            </div>
+                            <small class="setting-description">Maximum number of hashtags per post</small>
+                        </div>
+                    </div>
+                    
+                    <!-- API & Integration -->
+                    <div class="settings-section">
+                        <h3>API & Integration</h3>
+                        
+                        <div class="setting-item">
+                            <label for="apiKey">API Key</label>
+                            <div class="api-key-container">
+                                <input type="password" id="apiKey" name="apiKey" value="pk_live_••••••••••••••••" readonly>
+                                <button type="button" class="btn btn-secondary" onclick="dashboard.regenerateApiKey()">
+                                    <i class="fas fa-refresh"></i>
+                                    Regenerate
+                                </button>
+                            </div>
+                            <small class="setting-description">API key for external integrations</small>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <label for="webhookUrl">Webhook URL</label>
+                            <input type="url" id="webhookUrl" name="webhookUrl" placeholder="https://example.com/webhook" 
+                                   onchange="dashboard.updateSetting('webhookUrl', this.value)">
+                            <small class="setting-description">URL to receive content publication notifications</small>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <label for="rateLimiting">Rate Limiting</label>
+                            <select id="rateLimiting" name="rateLimiting" onchange="dashboard.updateSetting('rateLimiting', this.value)">
+                                <option value="conservative">Conservative (Slower, safer)</option>
+                                <option value="moderate" selected>Moderate (Balanced)</option>
+                                <option value="aggressive">Aggressive (Faster, riskier)</option>
+                            </select>
+                            <small class="setting-description">How aggressively to post to avoid platform limits</small>
+                        </div>
                     </div>
                 </div>
                 
-                <div class="settings-section">
-                    <h3>Connected Accounts</h3>
-                    <div class="connected-accounts">
-                        <div class="account-item" data-platform="linkedin">
-                            <div class="account-info">
-                                <i class="fab fa-linkedin"></i>
-                                <span>LinkedIn</span>
-                            </div>
-                            <div class="account-actions">
-                                <span class="status connected">Connected</span>
-                                <button class="btn-disconnect" onclick="disconnectAccount('linkedin')" style="display: none;">Disconnect</button>
-                                <button class="btn-connect" onclick="connectAccount('linkedin')" style="display: none;">Connect</button>
-                            </div>
-                        </div>
-                        <div class="account-item" data-platform="twitter">
-                            <div class="account-info">
-                                <i class="fab fa-twitter"></i>
-                                <span>Twitter</span>
-                            </div>
-                            <div class="account-actions">
-                                <span class="status disconnected">Not Connected</span>
-                                <button class="btn-disconnect" onclick="disconnectAccount('twitter')" style="display: none;">Disconnect</button>
-                                <button class="btn-connect" onclick="connectAccount('twitter')">Connect</button>
-                            </div>
-                        </div>
-                        <div class="account-item" data-platform="reddit">
-                            <div class="account-info">
-                                <i class="fab fa-reddit"></i>
-                                <span>Reddit</span>
-                            </div>
-                            <div class="account-actions">
-                                <span class="status connected">Connected</span>
-                                <button class="btn-disconnect" onclick="disconnectAccount('reddit')" style="display: none;">Disconnect</button>
-                                <button class="btn-connect" onclick="connectAccount('reddit')" style="display: none;">Connect</button>
-                            </div>
-                        </div>
-                    </div>
+                <!-- Save Button -->
+                <div class="settings-actions">
+                    <button type="button" class="btn btn-secondary" onclick="dashboard.resetSettings()">
+                        <i class="fas fa-undo"></i>
+                        Reset to Defaults
+                    </button>
+                    <button type="submit" class="btn btn-primary" onclick="dashboard.saveSettings(event)">
+                        <i class="fas fa-save"></i>
+                        Save Changes
+                    </button>
                 </div>
-            </div>
+            </form>
         </div>
 
         <!-- Profile Page -->
