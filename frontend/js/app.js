@@ -63,6 +63,9 @@ class PostSyncApp {
     }
 
     initAnimations() {
+        // Typewriter animation for hero title
+        this.initTypewriter();
+
         // Intersection Observer for scroll animations
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -80,6 +83,40 @@ class PostSyncApp {
             el.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
             observer.observe(el);
         });
+    }
+
+    initTypewriter() {
+        const typewriterElement = document.getElementById('typewriter-text');
+        if (!typewriterElement) return;
+
+        const text = 'AI-Powered Social Media Automation';
+        let index = 0;
+        let isDeleting = false;
+        let isCompleted = false;
+
+        const typeSpeed = 100;
+        const deleteSpeed = 50;
+        const pauseTime = 2000;
+
+        function type() {
+            if (!isCompleted) {
+                if (!isDeleting && index < text.length) {
+                    typewriterElement.textContent = text.slice(0, index + 1);
+                    index++;
+                    setTimeout(type, typeSpeed);
+                } else if (!isDeleting && index === text.length) {
+                    // Pause before completing
+                    setTimeout(() => {
+                        isCompleted = true;
+                        // Hide cursor after completion
+                        document.querySelector('.cursor').style.display = 'none';
+                    }, pauseTime);
+                }
+            }
+        }
+
+        // Start typing after a brief delay
+        setTimeout(type, 500);
     }
 
     showPage(pageId) {
