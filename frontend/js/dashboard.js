@@ -581,17 +581,18 @@ class DashboardApp {
                 return;
             }
             
-            // Simulate loading dashboard data
-            await this.simulateAPICall(500);
-            
-            // Update real-time stats
-            this.updateStats();
+            // Load user data and dashboard stats
+            await Promise.all([
+                this.loadUserData(),
+                this.loadUserStats()
+            ]);
             
             // Start real-time updates
             this.startRealTimeUpdates();
             
         } catch (error) {
             console.error('Failed to load dashboard data:', error);
+            this.showNotification('Failed to load dashboard data.', 'error');
         }
     }
 
@@ -646,6 +647,106 @@ class DashboardApp {
     async loadBillingData() {
         // Load billing data
         console.log('Loading billing data...');
+    }
+
+    async loadUserData() {
+        try {
+            const token = localStorage.getItem('postsync_access_token');
+            const response = await fetch('http://127.0.0.1:8000/api/v1/auth/me', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            if (response.ok) {
+                const userData = await response.json();
+                this.updateUserDisplay(userData);
+            } else {
+                throw new Error('Failed to fetch user data');
+            }
+        } catch (error) {
+            console.error('Error loading user data:', error);
+            // Fallback to stored data or default
+            this.updateUserDisplay({
+                full_name: 'User',
+                subscription_tier: 'Free'
+            });
+        }
+    }
+
+    async loadUserStats() {
+        try {
+            const token = localStorage.getItem('postsync_access_token');
+            const response = await fetch('http://127.0.0.1:8000/api/v1/users/stats', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            if (response.ok) {
+                const stats = await response.json();
+                this.updateStatsDisplay(stats);
+            } else {
+                // Use default stats if API fails
+                this.updateStatsDisplay({
+                    content_generated: 0,
+                    accuracy_rate: 0,
+                    posts_published: 0,
+                    total_engagement: 0
+                });
+            }
+        } catch (error) {
+            console.error('Error loading user stats:', error);
+            // Use default stats
+            this.updateStatsDisplay({
+                content_generated: 0,
+                accuracy_rate: 0,
+                posts_published: 0,
+                total_engagement: 0
+            });
+        }
+    }
+
+    updateUserDisplay(userData) {
+        // Update sidebar user info
+        const userNameElement = document.querySelector('.user-name');
+        const userPlanElement = document.querySelector('.user-plan');
+        
+        if (userNameElement) {
+            userNameElement.textContent = userData.full_name || 'User';
+        }
+        
+        if (userPlanElement) {
+            const plan = userData.subscription_tier || 'Free';
+            userPlanElement.textContent = plan.charAt(0).toUpperCase() + plan.slice(1) + ' Plan';
+        }
+    }
+
+    updateStatsDisplay(stats) {
+        // Update dashboard stats with real data
+        const statElements = {
+            'Content Generated': stats.content_generated || 0,
+            'Accuracy Rate': `${stats.accuracy_rate || 0}%`,
+            'Posts Published': stats.posts_published || 0,
+            'Total Engagement': this.formatNumber(stats.total_engagement || 0)
+        };
+
+        // Update each stat element
+        document.querySelectorAll('.stat-card').forEach(card => {
+            const label = card.querySelector('.stat-label')?.textContent;
+            const numberElement = card.querySelector('.stat-number');
+            
+            if (label && numberElement && statElements[label] !== undefined) {
+                numberElement.textContent = statElements[label];
+            }
+        });
+
+        // Animate the numbers
+        this.updateStats();
     }
 
     updateStats() {
