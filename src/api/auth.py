@@ -12,7 +12,7 @@ from datetime import timedelta
 from typing import Dict
 
 import structlog
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.security import HTTPBearer
 
 from src.models.schemas.auth import (
@@ -523,6 +523,44 @@ async def linkedin_oauth_initiate(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to initiate LinkedIn OAuth"
         )
+
+
+@router.get("/twitter/callback")
+async def twitter_oauth_callback(
+    code: str = Query(..., description="OAuth authorization code"),
+    state: str = Query(..., description="OAuth state parameter"),
+):
+    """
+    Handle Twitter OAuth callback.
+    
+    Redirects to frontend callback page with authorization code.
+    """
+    from fastapi.responses import RedirectResponse
+    
+    logger.info("Twitter OAuth callback received", code=code[:10] + "...", state=state)
+    
+    # Redirect to frontend callback page with the code
+    callback_url = f"http://localhost:3000/auth/twitter/callback.html?code={code}&state={state}"
+    return RedirectResponse(url=callback_url)
+
+
+@router.get("/linkedin/callback")
+async def linkedin_oauth_callback(
+    code: str = Query(..., description="OAuth authorization code"),
+    state: str = Query(..., description="OAuth state parameter"),
+):
+    """
+    Handle LinkedIn OAuth callback.
+    
+    Redirects to frontend callback page with authorization code.
+    """
+    from fastapi.responses import RedirectResponse
+    
+    logger.info("LinkedIn OAuth callback received", code=code[:10] + "...", state=state)
+    
+    # Redirect to frontend callback page with the code
+    callback_url = f"http://localhost:3000/auth/linkedin/callback.html?code={code}&state={state}"
+    return RedirectResponse(url=callback_url)
 
 
 @router.get(

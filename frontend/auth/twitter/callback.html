@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitter Connection - PostSync</title>
+    <link rel="stylesheet" href="../../css/styles.css">
+    <style>
+        .callback-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+            text-align: center;
+        }
+        .loading {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+        .error {
+            color: var(--error-color);
+            margin-top: 1rem;
+        }
+        .success {
+            color: var(--success-color);
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="callback-container">
+        <h2>Connecting Twitter Account...</h2>
+        <div class="loading">
+            <i class="fas fa-spinner fa-spin"></i>
+            Processing your authorization...
+        </div>
+        <div id="message"></div>
+    </div>
+
+    <script>
+        async function handleTwitterCallback() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            const state = urlParams.get('state');
+            const messageDiv = document.getElementById('message');
+            
+            if (!code) {
+                messageDiv.innerHTML = '<div class="error">Authorization failed. No authorization code received.</div>';
+                setTimeout(() => {
+                    window.location.href = '/dashboard.html';
+                }, 3000);
+                return;
+            }
+            
+            try {
+                // Get auth token from localStorage
+                const token = localStorage.getItem('postsync_access_token');
+                if (!token) {
+                    throw new Error('Not authenticated');
+                }
+                
+                // Send the authorization code to backend to complete connection
+                const response = await fetch('http://127.0.0.1:8000/api/v1/auth/social/connect', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        platform: 'twitter',
+                        authorization_code: code,
+                        redirect_uri: 'http://127.0.0.1:8000/api/v1/auth/twitter/callback'
+                    })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    messageDiv.innerHTML = `
+                        <div class="success">
+                            <i class="fas fa-check-circle"></i>
+                            Twitter account connected successfully!<br>
+                            Username: @${result.username || 'Connected'}
+                        </div>
+                    `;
+                    
+                    // Redirect to dashboard after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = '/dashboard.html';
+                    }, 2000);
+                } else {
+                    throw new Error('Failed to connect account');
+                }
+                
+            } catch (error) {
+                console.error('Twitter connection error:', error);
+                messageDiv.innerHTML = `
+                    <div class="error">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Failed to connect Twitter account: ${error.message}<br>
+                        Redirecting back to dashboard...
+                    </div>
+                `;
+                
+                // Redirect to dashboard after 3 seconds
+                setTimeout(() => {
+                    window.location.href = '/dashboard.html';
+                }, 3000);
+            }
+        }
+        
+        // Start the callback handling when page loads
+        document.addEventListener('DOMContentLoaded', handleTwitterCallback);
+    </script>
+</body>
+</html>

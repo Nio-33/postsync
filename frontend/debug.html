@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PostSync Debug Test</title>
+</head>
+<body>
+    <h1>PostSync Authentication Debug</h1>
+    
+    <h2>Backend Connection Test</h2>
+    <button onclick="testBackend()">Test Backend Connection</button>
+    <div id="backend-result"></div>
+    
+    <h2>Login Test</h2>
+    <form id="test-login">
+        <input type="email" id="test-email" value="newuser@test.com" placeholder="Email">
+        <input type="password" id="test-password" value="newpassword123" placeholder="Password">
+        <button type="submit">Test Login</button>
+    </form>
+    <div id="login-result"></div>
+    
+    <script>
+        // Test backend connection
+        async function testBackend() {
+            const resultDiv = document.getElementById('backend-result');
+            resultDiv.innerHTML = 'Testing backend connection...';
+            
+            try {
+                const response = await fetch('http://localhost:8000/health');
+                const data = await response.json();
+                resultDiv.innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+            } catch (error) {
+                resultDiv.innerHTML = 'Error: ' + error.message;
+            }
+        }
+        
+        // Test login
+        document.getElementById('test-login').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const resultDiv = document.getElementById('login-result');
+            resultDiv.innerHTML = 'Testing login...';
+            
+            const email = document.getElementById('test-email').value;
+            const password = document.getElementById('test-password').value;
+            
+            try {
+                console.log('Attempting login with:', { email, password: '***' });
+                
+                const response = await fetch('http://127.0.0.1:8000/api/v1/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = '<span style="color: green;">Login successful!</span><br><pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                } else {
+                    resultDiv.innerHTML = '<span style="color: red;">Login failed:</span><br><pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                resultDiv.innerHTML = '<span style="color: red;">Error: ' + error.message + '</span>';
+            }
+        });
+        
+        // Auto-test backend on load
+        window.onload = function() {
+            testBackend();
+        };
+    </script>
+</body>
+</html>

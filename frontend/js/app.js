@@ -168,7 +168,7 @@ class PostSyncApp {
 
         try {
             // Call real API endpoint
-            const response = await fetch('http://localhost:8000/api/v1/auth/login', {
+            const response = await fetch('http://127.0.0.1:8000/api/v1/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -259,7 +259,7 @@ class PostSyncApp {
 
         try {
             // Call real API endpoint
-            const response = await fetch('http://localhost:8000/api/v1/auth/register', {
+            const response = await fetch('http://127.0.0.1:8000/api/v1/auth/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

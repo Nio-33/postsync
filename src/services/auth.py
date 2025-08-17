@@ -327,7 +327,7 @@ class AuthService:
                 f"https://api.twitter.com/oauth/authorize?"
                 f"oauth_token=demo_token&"
                 f"state={state}&"
-                f"callback_url=http://localhost:3000/auth/twitter/callback"
+                f"callback_url=http://127.0.0.1:8000/api/v1/auth/twitter/callback"
             )
             
             self.logger.info("Twitter OAuth URL generated", user_id=user_id)
@@ -345,7 +345,7 @@ class AuthService:
             
             # Construct LinkedIn OAuth URL
             linkedin_client_id = self.settings.linkedin_client_id or "demo_client_id"
-            redirect_uri = "http://localhost:3000/auth/linkedin/callback"
+            redirect_uri = "http://127.0.0.1:8000/api/v1/auth/linkedin/callback"
             scope = "r_liteprofile,w_member_social"
             
             oauth_url = (

@@ -192,7 +192,7 @@
             transition: all 0.3s ease;
         }
 
-        .input-box i {
+        .input-box i:not(.password-toggle) {
             position: absolute;
             top: 50%;
             left: 20px;
@@ -202,9 +202,29 @@
             transition: all 0.3s ease;
         }
 
-        .input-box input:focus ~ i,
-        .input-box input:valid ~ i {
+        .input-box input:focus ~ i:not(.password-toggle),
+        .input-box input:valid ~ i:not(.password-toggle) {
             color: #667eea;
+        }
+
+        .input-box .password-toggle {
+            position: absolute;
+            top: 50%;
+            right: 20px !important;
+            left: auto !important;
+            transform: translateY(-50%);
+            font-size: 20px;
+            color: #666 !important;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 100;
+            display: block !important;
+            pointer-events: auto;
+        }
+
+        .input-box .password-toggle:hover {
+            color: #667eea !important;
+            opacity: 1;
         }
 
         .remember-forgot {
@@ -470,6 +490,7 @@
                     <input type="password" id="password" name="password" required>
                     <label>Password</label>
                     <i class="bx bxs-lock-alt"></i>
+                    <span class="password-toggle" onclick="togglePassword('password')" title="Show Password">👁</span>
                 </div>
                 
                 <div class="remember-forgot animation" style="--i: 3;">
@@ -509,12 +530,14 @@
                     <input type="password" id="signupPassword" name="password" required>
                     <label>Password</label>
                     <i class="bx bxs-lock-alt"></i>
+                    <span class="password-toggle" onclick="togglePassword('signupPassword')" title="Show Password">👁</span>
                 </div>
                 
                 <div class="input-box animation" style="--i: 21; --j: 4;">
                     <input type="password" id="confirmPassword" name="confirmPassword" required>
                     <label>Confirm Password</label>
                     <i class="bx bxs-lock-alt"></i>
+                    <span class="password-toggle" onclick="togglePassword('confirmPassword')" title="Show Password">👁</span>
                 </div>
                 
                 <div class="remember-forgot animation" style="--i: 22; --j: 5;">
@@ -813,6 +836,22 @@
         function isValidEmail(email) {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return emailRegex.test(email);
+        }
+
+        // Password visibility toggle function
+        function togglePassword(inputId) {
+            const passwordInput = document.getElementById(inputId);
+            const toggleIcon = passwordInput.parentElement.querySelector('.password-toggle');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.textContent = '🙈';
+                toggleIcon.setAttribute('title', 'Hide Password');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.textContent = '👁';
+                toggleIcon.setAttribute('title', 'Show Password');
+            }
         }
     </script>
 </body>
