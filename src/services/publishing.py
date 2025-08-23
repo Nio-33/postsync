@@ -309,9 +309,25 @@ class PublishingService:
     
     async def _get_scheduled_content(self, current_time: datetime) -> List[ContentItem]:
         """Get content items that are scheduled for the current time or earlier."""
-        # This would be a proper Firestore query in production
-        # For now, return empty list as placeholder
-        return []
+        try:
+            # Query Firestore for scheduled content that's ready to publish
+            scheduled_content = await self.db.get_scheduled_content(current_time)
+            
+            self.logger.info(
+                "Retrieved scheduled content",
+                count=len(scheduled_content),
+                current_time=current_time
+            )
+            
+            return scheduled_content
+            
+        except Exception as e:
+            self.logger.error(
+                "Failed to get scheduled content",
+                error=str(e),
+                current_time=current_time
+            )
+            return []
     
     async def cancel_scheduled_content(self, content_id: str, user_id: str) -> ContentItem:
         """

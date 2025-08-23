@@ -32,6 +32,7 @@ from src.models.user import User, UserCreateRequest, UserResponse
 from src.services.auth import AuthService
 from src.services.user import UserService
 from src.utils.auth import get_current_user
+from src.integrations.firestore import get_user_by_id
 
 # Initialize router and logger
 router = APIRouter()
@@ -91,7 +92,24 @@ async def register(
         user = await user_service.create_user(user_data)
         logger.info("User registered successfully", user_id=user.id, email=user.email)
         
-        return UserResponse.from_orm(user)
+        return UserResponse(
+            id=user.id,
+            email=user.email,
+            full_name=user.full_name,
+            avatar_url=user.avatar_url,
+            job_title=user.job_title,
+            company=user.company,
+            industry=user.industry,
+            bio=user.bio,
+            role=user.role,
+            subscription_tier=user.subscription_tier,
+            is_active=user.is_active,
+            is_verified=user.is_verified,
+            content_preferences=user.content_preferences,
+            stats=user.stats,
+            created_at=user.created_at,
+            updated_at=user.updated_at
+        )
         
     except HTTPException:
         raise
@@ -563,6 +581,19 @@ async def linkedin_oauth_callback(
     return RedirectResponse(url=callback_url)
 
 
+@router.get("/test-user")
+async def test_user_retrieval():
+    """Test user retrieval without auth."""
+    try:
+        user = await get_user_by_id("8aa1ea49-e203-482e-8bf1-e7237aa42c20")
+        if user:
+            return {"status": "found", "user_email": user.email, "user_id": user.id}
+        else:
+            return {"status": "not_found"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+
 @router.get(
     "/me",
     response_model=UserResponse,
@@ -576,4 +607,29 @@ async def get_current_user_info(
     
     Returns the authenticated user's profile information.
     """
-    return UserResponse.from_orm(current_user)
+    try:
+        # Convert User to UserResponse
+        return UserResponse(
+            id=current_user.id,
+            email=current_user.email,
+            full_name=current_user.full_name,
+            avatar_url=current_user.avatar_url,
+            job_title=current_user.job_title,
+            company=current_user.company,
+            industry=current_user.industry,
+            bio=current_user.bio,
+            role=current_user.role,
+            subscription_tier=current_user.subscription_tier,
+            is_active=current_user.is_active,
+            is_verified=current_user.is_verified,
+            content_preferences=current_user.content_preferences,
+            stats=current_user.stats,
+            created_at=current_user.created_at,
+            updated_at=current_user.updated_at
+        )
+    except Exception as e:
+        logger.error("Error in get_current_user_info", error=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error: {str(e)}"
+        )

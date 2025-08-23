@@ -161,6 +161,56 @@ async def get_content_item(
 
 
 @router.post(
+    "/generate",
+    response_model=ContentResponse,
+    dependencies=[Depends(security)]
+)
+async def generate_content_direct(
+    request: ContentGenerationRequest,
+    current_user: User = Depends(get_current_user),
+    content_generation: ContentGenerationService = Depends(get_content_generation_service),
+) -> ContentResponse:
+    """
+    Generate social media content directly using AI.
+    
+    Creates new content using AI generation without requiring existing source content.
+    """
+    logger.info(
+        "Direct content generation requested",
+        user_id=current_user.id,
+        platforms=request.platforms
+    )
+    
+    try:
+        # Generate content directly using AI
+        new_content = await content_generation.generate_direct_content(
+            user_id=current_user.id,
+            platforms=request.platforms,
+            custom_instructions=request.custom_instructions,
+            user_preferences=current_user.content_preferences,
+        )
+        
+        logger.info(
+            "Direct content generation completed",
+            user_id=current_user.id,
+            content_id=new_content.id
+        )
+        
+        return ContentResponse.from_orm(new_content)
+        
+    except Exception as e:
+        logger.error(
+            "Direct content generation failed",
+            user_id=current_user.id,
+            error=str(e)
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Content generation failed. Please try again."
+        )
+
+
+@router.post(
     "/discover",
     response_model=SuccessResponse,
     dependencies=[Depends(security)]

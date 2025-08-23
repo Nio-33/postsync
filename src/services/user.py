@@ -412,3 +412,21 @@ class UserService:
         except Exception as e:
             self.logger.error("User search failed", error=str(e), query=query)
             return []
+    
+    async def update_user_settings(self, user_id: str, settings: Dict) -> bool:
+        """Update user account settings."""
+        try:
+            # Update user settings in Firestore
+            update_data = {
+                "settings": settings,
+                "updated_at": datetime.now()
+            }
+            
+            success = await firestore_update_user(user_id, update_data)
+            if success:
+                self.logger.info("User settings updated", user_id=user_id)
+            return success
+            
+        except Exception as e:
+            self.logger.error("Settings update failed", error=str(e), user_id=user_id)
+            return False

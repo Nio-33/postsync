@@ -24,4 +24,4 @@ echo ""
 echo "Press Ctrl+C to stop the server"
 echo ""
 
-PYTHONPATH=/Users/nio/postsync uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
+PYTHONPATH=/Users/nio/Desktop/postsync uvicorn src.main:app --reload --host 0.0.0.0 --port 8000

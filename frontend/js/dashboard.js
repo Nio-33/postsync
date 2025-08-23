@@ -809,17 +809,153 @@ class DashboardApp {
             const token = localStorage.getItem('postsync_access_token');
             const timeRange = document.getElementById('analyticsTimeRange')?.value || '30d';
             
-            // In a real implementation, this would fetch from analytics API
-            // For now, we'll use demo data
-            const summaryData = this.getDemoAnalyticsSummary(timeRange);
+            // Calculate days from time range
+            const days = this._getDaysFromTimeRange(timeRange);
             
-            this.updateAnalyticsSummary(summaryData);
+            console.log('🔄 Loading real analytics summary for', timeRange, `(${days} days)`);
+            
+            // Make API call to get real analytics summary
+            const response = await fetch(`/api/analytics/summary?days=${days}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                const summaryData = await response.json();
+                
+                // Transform backend data to frontend format
+                const transformedData = this._transformAnalyticsData(summaryData);
+                this.updateAnalyticsSummary(transformedData);
+                
+                console.log('✅ Real analytics data loaded:', transformedData);
+                
+            } else if (response.status === 401) {
+                console.warn('Authentication failed, redirecting to login');
+                window.location.href = '/auth.html';
+            } else {
+                throw new Error(`Analytics API error: ${response.status} ${response.statusText}`);
+            }
             
         } catch (error) {
             console.error('Error loading analytics summary:', error);
-            // Use demo data as fallback
-            this.updateAnalyticsSummary(this.getDemoAnalyticsSummary('30d'));
+            
+            // Use demo data as fallback with warning
+            console.warn('🔄 Falling back to demo analytics data');
+            const summaryData = this.getDemoAnalyticsSummary(timeRange);
+            this.updateAnalyticsSummary(summaryData);
         }
+    }
+
+    // Helper methods for analytics API integration
+    _getDaysFromTimeRange(timeRange) {
+        switch(timeRange) {
+            case '7d': return 7;
+            case '90d': return 90;
+            case '1y': return 365;
+            default: return 30; // '30d'
+        }
+    }
+
+    _transformAnalyticsData(backendData) {
+        // Transform backend analytics data to match frontend expectations
+        return {
+            totalImpressions: backendData.total_impressions || 0,
+            totalEngagements: backendData.total_engagements || 0,
+            avgEngagementRate: backendData.average_engagement_rate || 0,
+            totalPosts: backendData.total_posts || 0,
+            followerGrowth: backendData.follower_growth || 0,
+            bestPost: backendData.best_post_id || null,
+            topPlatform: backendData.top_platform || null,
+            engagementTrend: backendData.engagement_trend || 'stable',
+            impressionTrend: backendData.impression_trend || 'stable'
+        };
+    }
+
+    async _loadChartAnalyticsData(timeRange, platform) {
+        try {
+            const token = localStorage.getItem('postsync_access_token');
+            const days = this._getDaysFromTimeRange(timeRange);
+            
+            // Build query parameters
+            const params = new URLSearchParams({
+                days: days.toString()
+            });
+            
+            if (platform) {
+                params.append('platform', platform);
+            }
+            
+            // Make API call for comprehensive analytics
+            const response = await fetch(`/api/analytics?${params}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                
+                // Transform data for charts
+                return {
+                    engagement_trends: data.user_analytics?.engagement_trends || [],
+                    platform_metrics: data.platform_analytics || [],
+                    content_type_data: this._generateContentTypeData(data.post_analytics || []),
+                    audience_growth: this._generateAudienceGrowthData(data.platform_analytics || [])
+                };
+            } else {
+                console.warn('Analytics API call failed:', response.status);
+                return null;
+            }
+            
+        } catch (error) {
+            console.error('Failed to load chart analytics data:', error);
+            return null;
+        }
+    }
+
+    _generateContentTypeData(postAnalytics) {
+        // Analyze post types from analytics data
+        const contentTypes = {
+            'Text Posts': 0,
+            'Image Posts': 0,
+            'Video Posts': 0,
+            'Link Posts': 0
+        };
+        
+        // For now, generate random data since we don't have content type classification
+        // In production, this would analyze the actual post data
+        const total = postAnalytics.length || 10;
+        contentTypes['Text Posts'] = Math.floor(total * 0.4);
+        contentTypes['Image Posts'] = Math.floor(total * 0.3);
+        contentTypes['Video Posts'] = Math.floor(total * 0.2);
+        contentTypes['Link Posts'] = total - contentTypes['Text Posts'] - contentTypes['Image Posts'] - contentTypes['Video Posts'];
+        
+        return contentTypes;
+    }
+
+    _generateAudienceGrowthData(platformAnalytics) {
+        // Generate audience growth data from platform analytics
+        const growthData = [];
+        
+        for (const platform of platformAnalytics) {
+            if (platform.follower_history && platform.follower_history.length > 0) {
+                const data = platform.follower_history.map(point => ({
+                    timestamp: point.timestamp,
+                    value: point.value
+                }));
+                growthData.push({
+                    platform: platform.platform,
+                    data: data
+                });
+            }
+        }
+        
+        return growthData;
     }
     
     getDemoAnalyticsSummary(timeRange) {
@@ -870,13 +1006,35 @@ class DashboardApp {
             const timeRange = document.getElementById('analyticsTimeRange')?.value || '30d';
             const platform = document.getElementById('analyticsPlatform')?.value || '';
             
+            console.log('🔄 Loading real analytics charts for', timeRange, platform);
+            
+            // Load real analytics data first
+            const analyticsData = await this._loadChartAnalyticsData(timeRange, platform);
+            
+            if (analyticsData) {
+                this.createEngagementTrendsChart(timeRange, platform, analyticsData.engagement_trends);
+                this.createPlatformPerformanceChart(timeRange, analyticsData.platform_metrics);
+                this.createContentTypeChart(timeRange, platform, analyticsData.content_type_data);
+                this.createAudienceGrowthChart(timeRange, platform, analyticsData.audience_growth);
+                
+                console.log('✅ Real analytics charts loaded');
+            } else {
+                // Fallback to demo charts
+                console.warn('🔄 Falling back to demo chart data');
+                this.createEngagementTrendsChart(timeRange, platform);
+                this.createPlatformPerformanceChart(timeRange);
+                this.createContentTypeChart(timeRange, platform);
+                this.createAudienceGrowthChart(timeRange, platform);
+            }
+            
+        } catch (error) {
+            console.error('Error loading analytics charts:', error);
+            
+            // Fallback to demo charts
             this.createEngagementTrendsChart(timeRange, platform);
             this.createPlatformPerformanceChart(timeRange);
             this.createContentTypeChart(timeRange, platform);
             this.createAudienceGrowthChart(timeRange, platform);
-            
-        } catch (error) {
-            console.error('Error loading analytics charts:', error);
         }
     }
     

@@ -438,6 +438,50 @@ class FirestoreClient:
             self.logger.error("Data cleanup failed", error=str(e))
             return 0
 
+    async def get_scheduled_content(self, current_time: datetime) -> List[ContentItem]:
+        """Get content items that are scheduled for publishing at or before the current time."""
+        try:
+            if self.db is None:
+                # Development mode: use in-memory storage
+                scheduled_items = []
+                for content_id, content_data in self._mock_storage["content"].items():
+                    content = ContentItem(**content_data)
+                    if (content.status == ContentStatus.SCHEDULED and 
+                        content.scheduled_at and 
+                        content.scheduled_at <= current_time):
+                        scheduled_items.append(content)
+                return scheduled_items
+            
+            # Production mode: query Firestore
+            query = self.db.collection(self.content_collection).where(
+                filter=FieldFilter("status", "==", ContentStatus.SCHEDULED.value)
+            ).where(
+                filter=FieldFilter("scheduled_at", "<=", current_time)
+            ).order_by("scheduled_at", direction=firestore.Query.ASCENDING)
+            
+            content_items = []
+            for doc in query.stream():
+                content_data = doc.to_dict()
+                content_data["id"] = doc.id
+                
+                # Convert Firestore timestamps to datetime
+                if "created_at" in content_data and hasattr(content_data["created_at"], 'seconds'):
+                    content_data["created_at"] = datetime.fromtimestamp(content_data["created_at"].seconds)
+                if "scheduled_at" in content_data and hasattr(content_data["scheduled_at"], 'seconds'):
+                    content_data["scheduled_at"] = datetime.fromtimestamp(content_data["scheduled_at"].seconds)
+                
+                content_items.append(ContentItem(**content_data))
+            
+            return content_items
+            
+        except Exception as e:
+            self.logger.error(
+                "Failed to get scheduled content",
+                error=str(e),
+                current_time=current_time
+            )
+            return []
+
 
 # Global Firestore client instance
 firestore_client = FirestoreClient()

@@ -155,6 +155,46 @@ async def update_content_preferences(
         )
 
 
+@router.put(
+    "/settings",
+    response_model=SuccessResponse,
+    dependencies=[Depends(security)]
+)
+async def update_user_settings(
+    settings: dict,
+    current_user: User = Depends(get_current_user),
+    user_service: UserService = Depends(get_user_service),
+) -> SuccessResponse:
+    """
+    Update user's account settings.
+    
+    Updates various user settings like notifications, privacy, etc.
+    """
+    logger.info("User settings update", user_id=current_user.id)
+    
+    try:
+        await user_service.update_user_settings(current_user.id, settings)
+        logger.info("User settings updated successfully", user_id=current_user.id)
+        
+        return SuccessResponse(
+            success=True,
+            message="Settings updated successfully"
+        )
+        
+    except ValueError as e:
+        logger.warning("Invalid settings data", user_id=current_user.id, error=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    except Exception as e:
+        logger.error("Settings update failed", user_id=current_user.id, error=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Settings update failed. Please try again."
+        )
+
+
 @router.get(
     "/stats",
     response_model=UserStats,

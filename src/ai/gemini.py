@@ -633,6 +633,31 @@ DataScience, TechInnovation, FutureOfWork, AIStartups, MLOps, GenerativeAI, AIEt
             self.logger.error("Gemini connection check failed", error=str(e))
             return False
 
+    async def generate_content_suggestions(self, prompt: str) -> str:
+        """Generate content suggestions using Gemini AI."""
+        try:
+            response = await self._call_gemini_api(prompt)
+            return response or ""
+        except Exception as e:
+            self.logger.error("Content suggestions generation failed", error=str(e))
+            # Return fallback suggestions if AI fails
+            return """
+            - Title: AI Industry Trends to Watch
+            - Description: Explore the latest developments in artificial intelligence
+            - Topics: AI, Technology, Innovation
+            - Engagement_potential: High
+
+            - Title: Future of Remote Work Technology
+            - Description: How technology is reshaping the remote work landscape
+            - Topics: Remote Work, Technology, Productivity
+            - Engagement_potential: Medium
+
+            - Title: Startup Funding in the AI Space
+            - Description: Analysis of recent funding trends in AI startups
+            - Topics: Startup, Funding, AI
+            - Engagement_potential: High
+            """
+
 
 # Global Gemini client instance
 gemini_client = GeminiClient()

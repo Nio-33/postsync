@@ -480,3 +480,120 @@ class ContentGenerationService:
         )
         
         return results
+    
+    async def generate_direct_content(
+        self,
+        user_id: str,
+        platforms: List[PlatformType],
+        user_preferences: ContentPreferences,
+        custom_instructions: Optional[str] = None
+    ) -> ContentItem:
+        """
+        Generate content directly using AI without existing source content.
+        
+        Args:
+            user_id: User ID
+            platforms: Target platforms for generation
+            user_preferences: User's content preferences
+            custom_instructions: Optional custom generation instructions
+            
+        Returns:
+            New ContentItem with generated posts
+        """
+        self.logger.info(
+            "Starting direct content generation",
+            user_id=user_id,
+            platforms=platforms
+        )
+        
+        try:
+            # Create a new content item
+            content_id = f"direct_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{user_id[:8]}"
+            
+            # Generate content using AI with custom prompt for direct generation
+            ai_prompt = self._build_direct_generation_prompt(
+                platforms=platforms,
+                user_preferences=user_preferences,
+                custom_instructions=custom_instructions
+            )
+            
+            # Generate posts for each platform
+            generated_posts = {}
+            for platform in platforms:
+                platform_prompt = f"{ai_prompt}\n\nCreate content optimized for {platform.value}."
+                
+                response = await self.gemini.generate_content(platform_prompt)
+                
+                generated_posts[platform] = GeneratedPost(
+                    platform=platform,
+                    text=response.get('text', ''),
+                    hashtags=response.get('hashtags', []),
+                    mentions=response.get('mentions', []),
+                    media_urls=response.get('media_urls', []),
+                    call_to_action=response.get('call_to_action'),
+                    generated_at=datetime.now()
+                )
+            
+            # Create content item
+            content_item = ContentItem(
+                id=content_id,
+                user_id=user_id,
+                title="AI Generated Content",
+                source_content="Direct AI generation",
+                source_url="",
+                source_type="ai_generated",
+                topic=user_preferences.preferred_topics[0] if user_preferences.preferred_topics else "technology",
+                platforms=platforms,
+                generated_posts=generated_posts,
+                status=ContentStatus.GENERATED,
+                created_at=datetime.now(),
+                updated_at=datetime.now()
+            )
+            
+            # Store in database
+            await self.db.create_content_item(content_item.dict())
+            
+            self.logger.info(
+                "Direct content generation completed",
+                user_id=user_id,
+                content_id=content_id
+            )
+            
+            return content_item
+            
+        except Exception as e:
+            self.logger.error(
+                "Direct content generation failed",
+                user_id=user_id,
+                error=str(e)
+            )
+            raise
+    
+    def _build_direct_generation_prompt(
+        self,
+        platforms: List[PlatformType],
+        user_preferences: ContentPreferences,
+        custom_instructions: Optional[str] = None
+    ) -> str:
+        """Build AI prompt for direct content generation."""
+        prompt_parts = [
+            "Generate engaging social media content for AI professionals and tech enthusiasts.",
+            f"Target platforms: {', '.join([p.value for p in platforms])}",
+        ]
+        
+        if user_preferences.preferred_topics:
+            prompt_parts.append(f"Focus on topics: {', '.join(user_preferences.preferred_topics)}")
+        
+        if user_preferences.tone:
+            prompt_parts.append(f"Use a {user_preferences.tone} tone")
+        
+        if custom_instructions:
+            prompt_parts.append(f"Additional instructions: {custom_instructions}")
+        
+        prompt_parts.extend([
+            "Create original, valuable content that would interest AI and tech professionals.",
+            "Include relevant hashtags and engaging call-to-action.",
+            "Make it informative and actionable."
+        ])
+        
+        return "\n".join(prompt_parts)

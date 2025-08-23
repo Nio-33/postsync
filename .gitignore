@@ -138,6 +138,7 @@ cython_debug/
 # Google Cloud
 service-account*.json
 gcloud-credentials.json
+postsync-*-*.json
 
 # IDE
 .vscode/

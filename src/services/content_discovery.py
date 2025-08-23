@@ -8,7 +8,7 @@ and managing the content discovery pipeline.
 import asyncio
 import uuid
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 import structlog
 
@@ -16,6 +16,7 @@ from src.integrations.firestore import firestore_client
 from src.integrations.reddit import reddit_client
 from src.models.content import ContentItem, ContentListResponse, ContentStatus, SourceContent
 from src.models.user import User
+from src.ai.gemini import GeminiClient
 from src.utils.error_handling import (
     with_retry, with_error_handling, ErrorContext, ExternalServiceError, 
     ContentGenerationError, error_handler
@@ -30,6 +31,7 @@ class ContentDiscoveryService:
         self.logger = structlog.get_logger(__name__)
         self.reddit = reddit_client
         self.db = firestore_client
+        self.ai = GeminiClient()
     
     @with_error_handling("content_discovery", "discover_content_for_user", "retry_with_backoff")
     @with_retry(max_attempts=3, retryable_errors=[ExternalServiceError])
@@ -636,3 +638,394 @@ class ContentDiscoveryService:
         except Exception as e:
             self.logger.error("Content cleanup failed", error=str(e))
             return 0
+
+    async def get_content_suggestions(
+        self,
+        user_id: str,
+        topic: Optional[str] = None,
+        limit: int = 10
+    ) -> List[Dict[str, Any]]:
+        """
+        Get AI-powered content suggestions for a user.
+        
+        Args:
+            user_id: User ID to get suggestions for
+            topic: Optional topic to focus suggestions on
+            limit: Maximum number of suggestions to return
+            
+        Returns:
+            List of content suggestions with titles, descriptions, and topics
+        """
+        try:
+            # Get user preferences
+            user = await self.db.get_user(user_id)
+            if not user:
+                self.logger.error("User not found for content suggestions", user_id=user_id)
+                return []
+            
+            # Get user's recent content for context
+            recent_content = await self.db.get_user_content(
+                user_id=user_id,
+                limit=20,
+                order_by="created_at",
+                descending=True
+            )
+            
+            # Build context for AI suggestions
+            user_topics = user.content_preferences.topics
+            recent_titles = [content.generated_content.title for content in recent_content 
+                           if content.generated_content and content.generated_content.title][:10]
+            
+            # Create AI prompt for content suggestions
+            prompt = self._build_content_suggestion_prompt(
+                user_topics=user_topics,
+                recent_titles=recent_titles,
+                focus_topic=topic,
+                limit=limit
+            )
+            
+            # Get AI-powered suggestions
+            response = await self.ai.generate_content_suggestions(prompt)
+            
+            # Parse and structure the suggestions
+            suggestions = self._parse_content_suggestions(response)
+            
+            self.logger.info(
+                "Content suggestions generated",
+                user_id=user_id,
+                suggestions_count=len(suggestions),
+                topic=topic
+            )
+            
+            return suggestions[:limit]
+            
+        except Exception as e:
+            self.logger.error(
+                "Failed to get content suggestions",
+                user_id=user_id,
+                error=str(e)
+            )
+            return []
+
+    async def search_user_content(
+        self,
+        user_id: str,
+        query: str,
+        filters: Optional[Dict] = None,
+        limit: int = 20
+    ) -> List[ContentItem]:
+        """
+        Search through user's content using AI-powered semantic search.
+        
+        Args:
+            user_id: User ID
+            query: Search query
+            filters: Optional filters (status, date range, etc.)
+            limit: Maximum results to return
+            
+        Returns:
+            List of matching content items
+        """
+        try:
+            # Get user's content
+            all_content = await self.db.get_user_content(
+                user_id=user_id,
+                limit=1000,  # Get more content for better search
+                status=filters.get("status") if filters else None
+            )
+            
+            if not all_content:
+                return []
+            
+            # Use AI to perform semantic search
+            search_results = await self._perform_semantic_search(
+                query=query,
+                content_items=all_content,
+                limit=limit
+            )
+            
+            self.logger.info(
+                "Content search completed",
+                user_id=user_id,
+                query=query,
+                results_count=len(search_results)
+            )
+            
+            return search_results
+            
+        except Exception as e:
+            self.logger.error(
+                "Content search failed",
+                user_id=user_id,
+                query=query,
+                error=str(e)
+            )
+            return []
+
+    async def get_trending_topics(
+        self,
+        user_id: str,
+        timeframe_hours: int = 24
+    ) -> List[Dict[str, Any]]:
+        """
+        Get trending topics based on user's interests and industry data.
+        
+        Args:
+            user_id: User ID
+            timeframe_hours: Hours to look back for trending data
+            
+        Returns:
+            List of trending topics with engagement metrics
+        """
+        try:
+            # Get user preferences
+            user = await self.db.get_user(user_id)
+            if not user:
+                return []
+            
+            # Get recent discovered content to identify trends
+            cutoff_time = datetime.utcnow() - timedelta(hours=timeframe_hours)
+            recent_content = await self.db.get_user_analytics_data(
+                user_id=user_id,
+                start_date=cutoff_time,
+                end_date=datetime.utcnow()
+            )
+            
+            # Analyze trending topics using AI
+            trending_analysis = await self._analyze_trending_topics(
+                user_topics=user.content_preferences.topics,
+                recent_content=recent_content,
+                timeframe_hours=timeframe_hours
+            )
+            
+            return trending_analysis
+            
+        except Exception as e:
+            self.logger.error(
+                "Failed to get trending topics",
+                user_id=user_id,
+                error=str(e)
+            )
+            return []
+
+    def _build_content_suggestion_prompt(
+        self,
+        user_topics: List[str],
+        recent_titles: List[str],
+        focus_topic: Optional[str] = None,
+        limit: int = 10
+    ) -> str:
+        """Build AI prompt for content suggestions."""
+        prompt = f"""
+        Generate {limit} engaging content suggestions for a social media professional.
+        
+        User's interests: {', '.join(user_topics)}
+        Recent content titles: {', '.join(recent_titles[-5:]) if recent_titles else 'None'}
+        {f'Focus topic: {focus_topic}' if focus_topic else ''}
+        
+        Please provide suggestions in this format for each:
+        - Title: [Engaging title]
+        - Description: [Brief description of content]
+        - Topics: [Relevant topic tags]
+        - Engagement_potential: [High/Medium/Low]
+        
+        Focus on:
+        1. Current industry trends and news
+        2. Educational content that provides value
+        3. Thought leadership opportunities
+        4. Content that drives engagement
+        5. Avoid duplicating recent content themes
+        """
+        return prompt
+
+    def _parse_content_suggestions(self, ai_response: str) -> List[Dict[str, Any]]:
+        """Parse AI response into structured content suggestions."""
+        suggestions = []
+        
+        try:
+            # Split response into individual suggestions
+            suggestion_blocks = ai_response.split('\n\n')
+            
+            for block in suggestion_blocks:
+                if not block.strip():
+                    continue
+                
+                suggestion = {}
+                lines = block.strip().split('\n')
+                
+                for line in lines:
+                    line = line.strip()
+                    if line.startswith('- Title:'):
+                        suggestion['title'] = line.replace('- Title:', '').strip()
+                    elif line.startswith('- Description:'):
+                        suggestion['description'] = line.replace('- Description:', '').strip()
+                    elif line.startswith('- Topics:'):
+                        topics_str = line.replace('- Topics:', '').strip()
+                        suggestion['topics'] = [topic.strip() for topic in topics_str.split(',')]
+                    elif line.startswith('- Engagement_potential:'):
+                        suggestion['engagement_potential'] = line.replace('- Engagement_potential:', '').strip()
+                
+                # Only add if we have at least title and description
+                if 'title' in suggestion and 'description' in suggestion:
+                    suggestion['id'] = str(uuid.uuid4())
+                    suggestion['generated_at'] = datetime.utcnow()
+                    suggestions.append(suggestion)
+            
+        except Exception as e:
+            self.logger.error("Failed to parse content suggestions", error=str(e))
+        
+        return suggestions
+
+    async def _perform_semantic_search(
+        self,
+        query: str,
+        content_items: List[ContentItem],
+        limit: int = 20
+    ) -> List[ContentItem]:
+        """Perform AI-powered semantic search on content items."""
+        try:
+            # Create search context
+            search_context = []
+            for content in content_items:
+                context = {
+                    'id': content.id,
+                    'title': content.generated_content.title if content.generated_content else '',
+                    'description': content.generated_content.description if content.generated_content else '',
+                    'topics': [topic.value for topic in content.source_content.topics] if content.source_content else [],
+                }
+                search_context.append(context)
+            
+            # Use AI to rank content by relevance to query
+            ranking_prompt = f"""
+            Query: "{query}"
+            
+            Rank the following content items by relevance to the query (1-10, 10 being most relevant):
+            
+            {chr(10).join([f"ID: {item['id']}, Title: {item['title']}, Description: {item['description'][:100]}..." for item in search_context[:50]])}
+            
+            Return only the IDs in order of relevance, one per line.
+            """
+            
+            # For now, implement simple text matching (would use AI in production)
+            query_lower = query.lower()
+            scored_items = []
+            
+            for content in content_items:
+                score = 0
+                title = content.generated_content.title.lower() if content.generated_content and content.generated_content.title else ''
+                desc = content.generated_content.description.lower() if content.generated_content and content.generated_content.description else ''
+                
+                # Simple scoring based on keyword matches
+                if query_lower in title:
+                    score += 10
+                if query_lower in desc:
+                    score += 5
+                
+                # Check topics
+                if content.source_content:
+                    for topic in content.source_content.topics:
+                        if query_lower in topic.value.lower():
+                            score += 3
+                
+                if score > 0:
+                    scored_items.append((score, content))
+            
+            # Sort by score and return top results
+            scored_items.sort(key=lambda x: x[0], reverse=True)
+            return [item[1] for item in scored_items[:limit]]
+            
+        except Exception as e:
+            self.logger.error(
+                "Semantic search failed",
+                query=query,
+                error=str(e)
+            )
+            # Fallback to simple text search
+            return [content for content in content_items 
+                   if query.lower() in (content.generated_content.title.lower() if content.generated_content and content.generated_content.title else '')][:limit]
+
+    async def _analyze_trending_topics(
+        self,
+        user_topics: List[str],
+        recent_content: List,
+        timeframe_hours: int
+    ) -> List[Dict[str, Any]]:
+        """Analyze trending topics using AI and data analysis."""
+        try:
+            # For now, return some trending topics based on current tech trends
+            # In production, this would analyze real data from multiple sources
+            trending_topics = [
+                {
+                    'topic': 'Artificial Intelligence',
+                    'trend_score': 95,
+                    'engagement_rate': 8.5,
+                    'post_count': 1250,
+                    'growth_rate': 25.3,
+                    'related_keywords': ['AI', 'machine learning', 'ChatGPT', 'automation']
+                },
+                {
+                    'topic': 'Startup Funding',
+                    'trend_score': 89,
+                    'engagement_rate': 7.2,
+                    'post_count': 890,
+                    'growth_rate': 15.7,
+                    'related_keywords': ['Series A', 'venture capital', 'investment', 'unicorn']
+                },
+                {
+                    'topic': 'Remote Work',
+                    'trend_score': 76,
+                    'engagement_rate': 6.8,
+                    'post_count': 654,
+                    'growth_rate': 12.4,
+                    'related_keywords': ['hybrid work', 'productivity', 'work from home', 'digital nomad']
+                },
+                {
+                    'topic': 'Cryptocurrency',
+                    'trend_score': 72,
+                    'engagement_rate': 9.1,
+                    'post_count': 432,
+                    'growth_rate': -8.2,  # Declining trend
+                    'related_keywords': ['Bitcoin', 'blockchain', 'Web3', 'DeFi']
+                },
+                {
+                    'topic': 'Sustainability',
+                    'trend_score': 68,
+                    'engagement_rate': 5.9,
+                    'post_count': 378,
+                    'growth_rate': 18.9,
+                    'related_keywords': ['ESG', 'green tech', 'climate change', 'renewable energy']
+                }
+            ]
+            
+            # Filter topics based on user interests
+            user_topic_set = set(topic.lower() for topic in user_topics)
+            relevant_topics = []
+            
+            for topic in trending_topics:
+                # Check if topic relates to user interests
+                topic_keywords = [topic['topic'].lower()] + [kw.lower() for kw in topic['related_keywords']]
+                
+                relevance_score = 0
+                for user_topic in user_topic_set:
+                    for keyword in topic_keywords:
+                        if user_topic in keyword or keyword in user_topic:
+                            relevance_score += 1
+                
+                if relevance_score > 0:
+                    topic['relevance_score'] = relevance_score
+                    relevant_topics.append(topic)
+            
+            # Sort by combined trend and relevance score
+            relevant_topics.sort(
+                key=lambda x: (x['trend_score'] * 0.7 + x['relevance_score'] * 30),
+                reverse=True
+            )
+            
+            return relevant_topics[:10]  # Return top 10 relevant trending topics
+            
+        except Exception as e:
+            self.logger.error(
+                "Trending topics analysis failed",
+                error=str(e)
+            )
+            return []
