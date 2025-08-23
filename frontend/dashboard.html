@@ -46,6 +46,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="#connected-accounts" class="nav-link" data-page="connected-accounts">
+                        <i class="fas fa-link"></i>
+                        <span>Connected Accounts</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="#settings" class="nav-link" data-page="settings">
                         <i class="fas fa-cog"></i>
                         <span>Settings</span>
@@ -79,7 +85,7 @@
             </div>
             <div class="header-right">
                 <div class="header-actions">
-                    <button class="btn btn-primary">
+                    <button class="btn btn-primary" id="generateContentBtn">
                         <i class="fas fa-plus"></i>
                         Generate Content
                     </button>
@@ -505,6 +511,24 @@
             </div>
         </div>
 
+        <!-- Connected Accounts Page -->
+        <div id="connected-accounts-content" class="content-area">
+            <div class="content-header">
+                <h2>Connected Accounts</h2>
+                <p>Manage your social media account connections for automated posting</p>
+            </div>
+            
+            <div class="settings-section">
+                <div class="connected-accounts" id="connectedAccounts">
+                    <!-- Accounts will be loaded dynamically -->
+                </div>
+                <button type="button" class="btn btn-secondary" onclick="dashboard.refreshConnections()">
+                    <i class="fas fa-sync-alt"></i>
+                    Refresh Connections
+                </button>
+            </div>
+        </div>
+
         <!-- Settings Page -->
         <div id="settings-content" class="content-area">
             <div class="content-header">
@@ -627,18 +651,6 @@
                         </div>
                     </div>
                     
-                    <!-- Connected Accounts -->
-                    <div class="settings-section">
-                        <h3>Connected Accounts</h3>
-                        <div class="connected-accounts" id="connectedAccounts">
-                            <!-- Accounts will be loaded dynamically -->
-                        </div>
-                        <button type="button" class="btn btn-secondary" onclick="dashboard.refreshConnections()">
-                            <i class="fas fa-sync-alt"></i>
-                            Refresh Connections
-                        </button>
-                    </div>
-                    
                     <!-- AI & Generation Settings -->
                     <div class="settings-section">
                         <h3>AI & Generation</h3>
@@ -685,39 +697,6 @@
                         </div>
                     </div>
                     
-                    <!-- API & Integration -->
-                    <div class="settings-section">
-                        <h3>API & Integration</h3>
-                        
-                        <div class="setting-item">
-                            <label for="apiKey">API Key</label>
-                            <div class="api-key-container">
-                                <input type="password" id="apiKey" name="apiKey" value="pk_live_••••••••••••••••" readonly>
-                                <button type="button" class="btn btn-secondary" onclick="dashboard.regenerateApiKey()">
-                                    <i class="fas fa-refresh"></i>
-                                    Regenerate
-                                </button>
-                            </div>
-                            <small class="setting-description">API key for external integrations</small>
-                        </div>
-                        
-                        <div class="setting-item">
-                            <label for="webhookUrl">Webhook URL</label>
-                            <input type="url" id="webhookUrl" name="webhookUrl" placeholder="https://example.com/webhook" 
-                                   onchange="dashboard.updateSetting('webhookUrl', this.value)">
-                            <small class="setting-description">URL to receive content publication notifications</small>
-                        </div>
-                        
-                        <div class="setting-item">
-                            <label for="rateLimiting">Rate Limiting</label>
-                            <select id="rateLimiting" name="rateLimiting" onchange="dashboard.updateSetting('rateLimiting', this.value)">
-                                <option value="conservative">Conservative (Slower, safer)</option>
-                                <option value="moderate" selected>Moderate (Balanced)</option>
-                                <option value="aggressive">Aggressive (Faster, riskier)</option>
-                            </select>
-                            <small class="setting-description">How aggressively to post to avoid platform limits</small>
-                        </div>
-                    </div>
                 </div>
                 
                 <!-- Save Button -->

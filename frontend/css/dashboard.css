@@ -185,6 +185,7 @@
     gap: 1rem;
 }
 
+
 .notification-icon {
     position: relative;
     cursor: pointer;
@@ -270,6 +271,18 @@
 
 .content-header {
     margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 2rem;
+}
+
+.content-header-left {
+    flex: 1;
+}
+
+.content-header-right {
+    flex-shrink: 0;
 }
 
 .content-header h2 {
@@ -3079,4 +3092,14 @@ input:checked + .slider:before {
         text-align: left;
         min-width: auto;
     }
+}
+
+/* Generate Content button visibility control */
+#generateContentBtn {
+    display: none;
+}
+
+/* Show Generate Content button only on Content Review page */
+body.page-content-review #generateContentBtn {
+    display: inline-flex;
 }

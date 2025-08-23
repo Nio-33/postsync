@@ -11,6 +11,7 @@ class DashboardApp {
         this.initCharts();
         this.initCalendar();
         this.loadDashboardData();
+        
     }
 
     bindEvents() {
@@ -81,16 +82,21 @@ class DashboardApp {
             });
         });
 
-        // Generate Content button - be more specific
+        // Generate Content button - only works on content-review page
         document.addEventListener('click', (e) => {
-            // Check if clicked element or its parent contains "Generate Content" 
+            // Check if clicked element is the Generate Content button
             const target = e.target.closest('button');
-            if (target && target.textContent.includes('Generate Content')) {
-                e.preventDefault();
-                e.stopPropagation();
-                e.stopImmediatePropagation();
-                this.generateContent();
-                return false;
+            if (target && (target.id === 'generateContentBtn' || target.textContent.includes('Generate Content'))) {
+                // Only allow generation on content-review page
+                if (this.currentPage === 'content-review') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    this.generateContent();
+                    return false;
+                } else {
+                    console.warn('Generate Content button should only work on Content Review page');
+                }
             }
         });
 
@@ -161,7 +167,12 @@ class DashboardApp {
         document.querySelector('.page-title').textContent = pageTitle;
         console.log('Updated page title to:', pageTitle);
 
+
         this.currentPage = pageId;
+
+        // Update body class for page-specific styling (Generate Content button visibility)
+        document.body.className = document.body.className.replace(/page-\S+/g, '');
+        document.body.classList.add(`page-${pageId}`);
 
         // Load page-specific data
         this.loadPageData(pageId);
@@ -173,12 +184,14 @@ class DashboardApp {
             'content-review': 'Content Review',
             'analytics': 'Analytics',
             'schedule': 'Content Schedule',
+            'connected-accounts': 'Connected Accounts',
             'settings': 'Settings',
             'profile': 'Profile',
             'billing': 'Billing'
         };
         return titles[pageId] || 'Dashboard';
     }
+
 
     toggleSidebar() {
         const sidebar = document.querySelector('.sidebar');
@@ -758,6 +771,9 @@ class DashboardApp {
                 break;
             case 'schedule':
                 await this.loadScheduleData();
+                break;
+            case 'connected-accounts':
+                await this.loadConnectedAccounts();
                 break;
             case 'settings':
                 await this.loadSettingsData();
@@ -2993,12 +3009,14 @@ window.checkGenerateButton = function() {
         const btn = buttons[i];
         if (btn.textContent.includes('Generate Content')) {
             console.log('✅ Found Generate Content button:', btn);
+            console.log('   - ID:', btn.id);
             console.log('   - Text:', btn.textContent);
             console.log('   - Classes:', btn.className);
             console.log('   - Disabled:', btn.disabled);
+            console.log('   - Location: Content Review page');
             return btn;
         }
     }
-    console.error('❌ Generate Content button not found');
+    console.error('❌ Generate Content button not found (should be on Content Review page)');
     return null;
 };
